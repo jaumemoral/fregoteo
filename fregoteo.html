@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hello World</title>
+</head>
+<body>
+<script src="fregoteo.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.3/pixi.min.js"></script>
+<script>
+var stage = new PIXI.Container(),
+    renderer = PIXI.autoDetectRenderer(256, 256);
+document.body.appendChild(renderer.view);
+
+//Use Pixi's built-in `loader` object to load an image
+PIXI.loader
+  .add("brut.png").add("net.png")
+  .load(setup);
+
+//This `setup` function will run when the image has loaded
+function setup() {
+	var habitacio=new Habitacio(4,4);
+	j=new Jugador(habitacio,0,0);
+	j.mou(1,0);
+	j.frega();
+	j.mou(1,1)
+	habitacio.secaUnaMica();
+	var joc={habitacio:habitacio};
+	display(joc);
+}
+
+function display(joc) {
+  var rajoles=joc.habitacio.llistaRajoles
+  for (i in rajoles) {
+  	var f="net.png";
+  	if (rajoles[i].estaBruta()) f="brut.png";
+  	var r = new PIXI.Sprite(
+      	PIXI.loader.resources[f].texture
+    );
+  	r.x=rajoles[i].x*64
+  	r.y=rajoles[i].y*64
+  	stage.addChild(r);
+  	if (rajoles[i].estaMolla()) {
+  		var graphics = new PIXI.Graphics();
+		graphics.beginFill(0x0000FF);
+		graphics.alpha=0.5*(rajoles[i].molla/10)
+		graphics.drawRect(rajoles[i].x*64, rajoles[i].y*64, rajoles[i].x*64+64, rajoles[i].y*64+64);
+		stage.addChild(graphics);
+  	}
+  }
+  renderer.render(stage);
+}
+
+</script>
+</body>
+</html>
