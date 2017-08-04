@@ -12,43 +12,122 @@ var stage = new PIXI.Container(),
     renderer = PIXI.autoDetectRenderer(256, 256);
 document.body.appendChild(renderer.view);
 
+function keyboard(keyCode) {
+  var key = {};
+  key.code = keyCode;
+  key.isDown = false;
+  key.isUp = true;
+  key.press = undefined;
+  key.release = undefined;
+  //The `downHandler`
+  key.downHandler = function(event) {
+    if (event.keyCode === key.code) {
+      if (key.isUp && key.press) key.press();
+      key.isDown = true;
+      key.isUp = false;
+    }
+    event.preventDefault();
+  };
+
+  //The `upHandler`
+  key.upHandler = function(event) {
+    if (event.keyCode === key.code) {
+      if (key.isDown && key.release) key.release();
+      key.isDown = false;
+      key.isUp = true;
+    }
+    event.preventDefault();
+  };
+
+  //Attach event listeners
+  window.addEventListener(
+    "keydown", key.downHandler.bind(key), false
+  );
+  window.addEventListener(
+    "keyup", key.upHandler.bind(key), false
+  );
+  return key;
+}
+
 //Use Pixi's built-in `loader` object to load an image
 PIXI.loader
-  .add("brut.png").add("net.png")
+  .add("brut.png").add("net.png").add("cat.png")
   .load(setup);
 
 //This `setup` function will run when the image has loaded
 function setup() {
 	var habitacio=new Habitacio(4,4);
 	j=new Jugador(habitacio,0,0);
+	j.frega();
 	j.mou(1,0);
 	j.frega();
-	j.mou(1,1)
+	j.mou(1,0);
+	j.frega();
+	j.mou(1,0);
+	j.frega();	
 	habitacio.secaUnaMica();
-	var joc={habitacio:habitacio};
-	display(joc);
+	joc=new Joc(habitacio,j)
+	joc.start();
 }
 
-function display(joc) {
-  var rajoles=joc.habitacio.llistaRajoles
-  for (i in rajoles) {
-  	var f="net.png";
-  	if (rajoles[i].estaBruta()) f="brut.png";
-  	var r = new PIXI.Sprite(
-      	PIXI.loader.resources[f].texture
-    );
-  	r.x=rajoles[i].x*64
-  	r.y=rajoles[i].y*64
-  	stage.addChild(r);
-  	if (rajoles[i].estaMolla()) {
-  		var graphics = new PIXI.Graphics();
-		graphics.beginFill(0x0000FF);
-		graphics.alpha=0.5*(rajoles[i].molla/10)
-		graphics.drawRect(rajoles[i].x*64, rajoles[i].y*64, rajoles[i].x*64+64, rajoles[i].y*64+64);
-		stage.addChild(graphics);
-  	}
-  }
-  renderer.render(stage);
+
+function Joc(habitacio,jugador) {
+	var self = this;
+	self.habitacio=habitacio;
+	self.jugador=jugador;
+	self.acabat=false;
+
+  self.start=function() {
+		var left = keyboard(37),
+				up = keyboard(38),
+				right = keyboard(39),
+				down = keyboard(40);
+		left.press = function() {self.jugador.mou(-1,0)};
+		up.press = function() {self.jugador.mou(0,-1)};
+		down.press = function() {self.jugador.mou(0,1)};
+		right.press = function() {self.jugador.mou(1,0)};
+		self.bucle();
+	}		
+
+	self.bucle= function() {
+		self.display();
+		self.displayJugador();
+		renderer.render(stage);
+		self.habitacio.secaUnaMica();
+		if (!self.acabat) {
+			setTimeout(self.bucle,1000);
+		}
+	}
+
+  self.displayJugador=function() {			
+		var cat=new PIXI.Sprite(PIXI.loader.resources["cat.png"].texture);		
+		cat.x=self.jugador.x*64
+		cat.y=self.jugador.y*64
+		stage.addChild(cat);		
+	}
+
+	self.display=function() {
+		var rajoles=self.habitacio.llistaRajoles
+		for (i in rajoles) {
+			var f="net.png";
+			if (rajoles[i].estaBruta()) f="brut.png";
+			var r = new PIXI.Sprite(
+					PIXI.loader.resources[f].texture
+			);
+			r.x=rajoles[i].x*64
+			r.y=rajoles[i].y*64
+			stage.addChild(r);
+			if (rajoles[i].estaMolla()) {
+				var graphics = new PIXI.Graphics();
+			graphics.beginFill(0x0000FF);
+			graphics.alpha=0.5*(rajoles[i].molla/10)
+			graphics.drawRect(rajoles[i].x*64, rajoles[i].y*64, rajoles[i].x*64+64, rajoles[i].y*64+64);
+			stage.addChild(graphics);
+			}
+		}		
+}
+
+
 }
 
 </script>

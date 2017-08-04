@@ -1,7 +1,8 @@
 function Jugador(habitacio,x,y) {
+	var self=this;
 	this.habitacio=habitacio;
-	this.x=this.x;
-	this.y=this.y;
+	this.x=x;
+	this.y=y;
 	this.peusMolls=0;
 
 	this.frega = function() {
@@ -9,10 +10,10 @@ function Jugador(habitacio,x,y) {
 		rajola.frega();
 	}
 
-	this.mou = function (x,y) {
-		this.x=x;
-		this.y=y;
-		var rajola=habitacio.getRajola(x,y);
+	this.mou = function (dx,dy) {
+		this.x+=dx;
+		this.y+=dy;
+		var rajola=habitacio.getRajola(this.x,this.y);
 		rajola.trepitja(this);
 		this.secaPeus();
 	}
@@ -31,12 +32,11 @@ function Jugador(habitacio,x,y) {
 }
 
 function Habitacio(ample,alt) {
-
+	var self=this;
 	this.rajoles=[];
 	this.llistaRajoles=[];
 	this.ample=ample;
 	this.alt=alt;
-
 
 	this.init = function() {
 		for (i=0;i<this.alt;i++) {
@@ -49,9 +49,7 @@ function Habitacio(ample,alt) {
 			this.rajoles.push(fila)
 		}
 	}
-
-	this.init()
-
+	this.init();
 
 	this.getRajola = function(x,y) {
 		return this.rajoles[x][y];
@@ -77,6 +75,7 @@ function Habitacio(ample,alt) {
 }
 
 function Rajola(x,y) {
+	var self=this;
 	this.bruta=true;
 	this.molla=0;
 	this.x=x;
@@ -132,20 +131,22 @@ function test() {
 	j.mou(1,0)
 	j.frega()	
 	habitacio.secaUnaMica()	
-	j.mou(1,1)
-	var r=habitacio.getRajola(1,0)
+	j.mou(0,1)
+	var r=habitacio.getRajola(1,0)	
 	assert(r.estaMolla(),"Casella 1,0 molla")	
+	/*
 	j.frega()
 	var r=habitacio.getRajola(1,1)
 	assert(r.estaMolla(),"Casella 1,1 molla")	
-	j.mou(1,0)
+	j.mou(0,-1)
 	var r=habitacio.getRajola(1,0)
 	assert(r.estaBruta(),"Casella 1,0 bruta")	
 	console.log(habitacio.toString())
-	j.mou(1,1)	
+	j.mou(0,1)	
 	console.log(habitacio.toString())
 	habitacio.secaUnaMica()	
 	console.log(habitacio.toString())
+	*/
 }
 
 test()
