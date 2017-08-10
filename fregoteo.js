@@ -1,21 +1,23 @@
-function Jugador(habitacio,x,y) {
+function Jugador(habitacio,fila,columna) {
 	var self=this;
 	this.habitacio=habitacio;
-	this.x=x;
-	this.y=y;
+	this.fila=fila;
+	this.columna=columna;
+	this.filaDesti=fila;
+	this.columnaDesti=columna;
+	this.x=this.fila*64;
+	this.y=this.columna*64;
 	this.peusMolls=0;
+	this.velocitat=2;
 
 	this.frega = function() {
-		rajola=habitacio.getRajola(this.x,this.y);
+		rajola=habitacio.getRajola(this.fila,this.columna);
 		rajola.frega();
 	}
 
 	this.mou = function (dx,dy) {
-		this.x+=dx;
-		this.y+=dy;
-		var rajola=habitacio.getRajola(this.x,this.y);
-		rajola.trepitja(this);
-		this.secaPeus();
+		this.filaDesti=this.fila+dx;
+		this.columnaDesti=this.columna+dy;
 	}
 
 	this.tePeusMolls = function () {
@@ -28,6 +30,26 @@ function Jugador(habitacio,x,y) {
 
 	this.secaPeus = function () {
 		if (this.tePeusMolls) this.peusMolls--;
+	}
+
+	this.quiet= function () {
+		return (this.fila==this.filaDesti)&&(this.columna==this.columnaDesti);	
+	}
+
+	this.pas=function() {
+		if (this.quiet()) return;
+
+		this.x+=(this.filaDesti-this.fila)*this.velocitat;
+		this.y+=(this.columnaDesti-this.columna)*this.velocitat;		
+
+		console.log(this.x+";"+this.y)
+		if ((this.x==this.filaDesti*64)&&(this.y==this.columnaDesti*64)){
+			this.fila=this.filaDesti;
+			this.columna=this.columnaDesti;	
+			var rajola=habitacio.getRajola(this.fila,this.columna);
+			rajola.trepitja(this);
+			this.secaPeus();
+		} 
 	}
 }
 
@@ -48,6 +70,7 @@ function Habitacio(ample,alt) {
 			}
 			this.rajoles.push(fila)
 		}
+		this.abans=new Date().getTime()
 	}
 	this.init();
 
@@ -71,6 +94,14 @@ function Habitacio(ample,alt) {
 			resultat+="\n"
 		}
 		return resultat;
+	}
+
+	this.pas = function() {
+		var ara=new Date().getTime();
+		if (ara>this.abans+1000) {
+			this.abans=ara
+			this.secaUnaMica();
+		}
 	}
 }
 
@@ -116,7 +147,7 @@ function Rajola(x,y) {
 		return "["+(this.bruta?"X":".")+this.molla+"]"
 	}
 }
-
+/*
 function assert(condicio) {
 	if (!condicio) {
 		console.log("Peta")
@@ -146,7 +177,8 @@ function test() {
 	console.log(habitacio.toString())
 	habitacio.secaUnaMica()	
 	console.log(habitacio.toString())
-	*/
+
 }
 
 test()
+*/

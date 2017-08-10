@@ -58,14 +58,10 @@ PIXI.loader
 function setup() {
 	var habitacio=new Habitacio(4,4);
 	j=new Jugador(habitacio,0,0);
-	j.frega();
-	j.mou(1,0);
-	j.frega();
-	j.mou(1,0);
-	j.frega();
-	j.mou(1,0);
-	j.frega();	
-	habitacio.secaUnaMica();
+	habitacio.getRajola(0,0).frega();
+	habitacio.getRajola(0,1).frega();
+	habitacio.getRajola(0,2).frega();
+	habitacio.getRajola(0,3).frega();
 	joc=new Joc(habitacio,j)
 	joc.start();
 }
@@ -81,11 +77,13 @@ function Joc(habitacio,jugador) {
 		var left = keyboard(37),
 				up = keyboard(38),
 				right = keyboard(39),
-				down = keyboard(40);
+				down = keyboard(40),
+				space = keyboard(32);
 		left.press = function() {self.jugador.mou(-1,0)};
 		up.press = function() {self.jugador.mou(0,-1)};
 		down.press = function() {self.jugador.mou(0,1)};
 		right.press = function() {self.jugador.mou(1,0)};
+		space.press = function() {self.jugador.frega()};
 		self.bucle();
 	}		
 
@@ -93,16 +91,17 @@ function Joc(habitacio,jugador) {
 		self.display();
 		self.displayJugador();
 		renderer.render(stage);
-		self.habitacio.secaUnaMica();
+		self.habitacio.pas();
+		self.jugador.pas();
 		if (!self.acabat) {
-			setTimeout(self.bucle,1000);
+			window.requestAnimationFrame(self.bucle);
 		}
 	}
 
   self.displayJugador=function() {			
 		var cat=new PIXI.Sprite(PIXI.loader.resources["cat.png"].texture);		
-		cat.x=self.jugador.x*64
-		cat.y=self.jugador.y*64
+		cat.x=self.jugador.x
+		cat.y=self.jugador.y
 		stage.addChild(cat);		
 	}
 
