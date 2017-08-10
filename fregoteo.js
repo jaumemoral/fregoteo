@@ -8,6 +8,8 @@ function Jugador(habitacio,fila,columna) {
 	this.x=this.fila*64;
 	this.y=this.columna*64;
 	this.peusMolls=0;
+	this.dx=0;
+	this.dy=0;
 	this.velocitat=2;
 
 	this.frega = function() {
@@ -15,9 +17,27 @@ function Jugador(habitacio,fila,columna) {
 		rajola.frega();
 	}
 
-	this.mou = function (dx,dy) {
-		this.filaDesti=this.fila+dx;
-		this.columnaDesti=this.columna+dy;
+	this.vesCap = function (dx,dy) {
+		this.dx=dx;
+		this.dy=dy;
+		this.setDesti();
+	}
+
+	this.setDesti = function () {
+		if (this.quiet()) {
+			this.filaDesti=this.fila+this.dx;
+			this.columnaDesti=this.columna+this.dy;
+			this.dx=0;
+			this.dy=0;
+		}
+	}
+
+	this.mou = function (fila,columna) {
+		this.fila=fila;
+		this.columna=columna;	
+		var rajola=habitacio.getRajola(this.fila,this.columna);
+		rajola.trepitja(this);
+		this.secaPeus();
 	}
 
 	this.tePeusMolls = function () {
@@ -42,13 +62,9 @@ function Jugador(habitacio,fila,columna) {
 		this.x+=(this.filaDesti-this.fila)*this.velocitat;
 		this.y+=(this.columnaDesti-this.columna)*this.velocitat;		
 
-		console.log(this.x+";"+this.y)
 		if ((this.x==this.filaDesti*64)&&(this.y==this.columnaDesti*64)){
-			this.fila=this.filaDesti;
-			this.columna=this.columnaDesti;	
-			var rajola=habitacio.getRajola(this.fila,this.columna);
-			rajola.trepitja(this);
-			this.secaPeus();
+			this.mou(this.filaDesti, this.columnaDesti);
+			this.setDesti()
 		} 
 	}
 }

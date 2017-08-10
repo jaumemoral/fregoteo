@@ -79,10 +79,10 @@ function Joc(habitacio,jugador) {
 				right = keyboard(39),
 				down = keyboard(40),
 				space = keyboard(32);
-		left.press = function() {self.jugador.mou(-1,0)};
-		up.press = function() {self.jugador.mou(0,-1)};
-		down.press = function() {self.jugador.mou(0,1)};
-		right.press = function() {self.jugador.mou(1,0)};
+		left.press = function() {self.jugador.vesCap(-1,0)};
+		up.press = function() {self.jugador.vesCap(0,-1)};
+		down.press = function() {self.jugador.vesCap(0,1)};
+		right.press = function() {self.jugador.vesCap(1,0)};
 		space.press = function() {self.jugador.frega()};
 		self.bucle();
 	}		
