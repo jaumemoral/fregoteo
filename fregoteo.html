@@ -8,10 +8,6 @@
 <script src="fregoteo.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.3/pixi.min.js"></script>
 <script>
-var stage = new PIXI.Container(),
-    renderer = PIXI.autoDetectRenderer(256, 256);
-document.body.appendChild(renderer.view);
-
 function keyboard(keyCode) {
   var key = {};
   key.code = keyCode;
@@ -73,7 +69,7 @@ function Joc(habitacio,jugador) {
 	self.jugador=jugador;
 	self.acabat=false;
 
-  self.start=function() {
+    self.start=function() {
 		var left = keyboard(37),
 				up = keyboard(38),
 				right = keyboard(39),
@@ -84,47 +80,64 @@ function Joc(habitacio,jugador) {
 		down.press = function() {self.jugador.vesCap(0,1)};
 		right.press = function() {self.jugador.vesCap(1,0)};
 		space.press = function() {self.jugador.frega()};
+
+		self.stage = new PIXI.Container(),
+    	self.renderer = PIXI.autoDetectRenderer(256, 256);
+		document.body.appendChild(self.renderer.view);
+		
+		self.displayHabitacio(self.habitacio);
+		self.displayJugador(self.jugador);
+
 		self.bucle();
 	}		
 
 	self.bucle= function() {
-		self.display();
-		self.displayJugador();
-		renderer.render(stage);
+		self.updateHabitacio(self.habitacio);
+		self.updateJugador(self.jugador);
+		self.renderer.render(self.stage);
 		self.habitacio.pas();
 		self.jugador.pas();
 		if (!self.acabat) {
 			window.requestAnimationFrame(self.bucle);
 		}
+		console.log(self.stage.children.length)
 	}
 
-  self.displayJugador=function() {			
-		var cat=new PIXI.Sprite(PIXI.loader.resources["cat.png"].texture);		
-		cat.x=self.jugador.x
-		cat.y=self.jugador.y
-		stage.addChild(cat);		
+    self.displayJugador=function() {			
+		self.cat=new PIXI.Sprite(PIXI.loader.resources["cat.png"].texture);		
+		self.stage.addChild(self.cat);				
 	}
 
-	self.display=function() {
-		var rajoles=self.habitacio.llistaRajoles
+    self.updateJugador=function(jugador) {			
+		this.cat.x=jugador.x
+		this.cat.y=jugador.y
+	}
+
+	self.displayHabitacio=function(habitacio) {
+		var rajoles=habitacio.llistaRajoles
+		for (i in rajoles) {
+			var r = new PIXI.Sprite();
+			r.x=rajoles[i].x*64
+			r.y=rajoles[i].y*64
+			rajoles[i].sprite=r;
+			self.stage.addChild(r);
+		}
+	}		
+
+	self.updateHabitacio=function(habitacio) {
+		var colors=['F','E','C','B','A','9','8','7','6','5'];
+		var rajoles=habitacio.llistaRajoles
 		for (i in rajoles) {
 			var f="net.png";
 			if (rajoles[i].estaBruta()) f="brut.png";
-			var r = new PIXI.Sprite(
-					PIXI.loader.resources[f].texture
-			);
-			r.x=rajoles[i].x*64
-			r.y=rajoles[i].y*64
-			stage.addChild(r);
+			rajoles[i].sprite.setTexture(PIXI.loader.resources[f].texture);
 			if (rajoles[i].estaMolla()) {
-				var graphics = new PIXI.Graphics();
-			graphics.beginFill(0x0000FF);
-			graphics.alpha=0.5*(rajoles[i].molla/10)
-			graphics.drawRect(rajoles[i].x*64, rajoles[i].y*64, rajoles[i].x*64+64, rajoles[i].y*64+64);
-			stage.addChild(graphics);
+				var a=colors[rajoles[i].molla];
+				var tint="0x"+a+a+a+a+"FF"
+				rajoles[i].sprite.tint=tint;
 			}
-		}		
-}
+		}
+	}		
 
 
 }
