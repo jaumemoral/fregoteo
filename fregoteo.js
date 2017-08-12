@@ -1,8 +1,17 @@
+var CAPACITAT_FREGONA=5;
+
+function Galleda(fila,columna,aigua) {
+	this.fila=fila;
+	this.columna=columna;
+	this.aigua=aigua;
+}
+
 function Jugador(habitacio,fila,columna) {
 	var self=this;
 	this.habitacio=habitacio;
 	this.fila=fila;
 	this.columna=columna;
+
 	this.filaDesti=fila;
 	this.columnaDesti=columna;
 	this.x=this.fila*64;
@@ -11,10 +20,14 @@ function Jugador(habitacio,fila,columna) {
 	this.dx=0;
 	this.dy=0;
 	this.velocitat=2;
+	this.aiguaFregona=0;
 
 	this.frega = function() {
-		rajola=habitacio.getRajola(this.fila,this.columna);
-		rajola.frega();
+		if (this.aiguaFregona>0) {
+			rajola=habitacio.getRajola(this.fila,this.columna);
+			rajola.frega();
+			this.aiguaFregona--;
+		}
 	}
 
 	this.vesCap = function (dx,dy) {
@@ -48,12 +61,22 @@ function Jugador(habitacio,fila,columna) {
 		this.peusMolls=aigua
 	}
 
+	this.mullaFregona = function (galleda) {
+		var quantitatAigua=galleda.aigua>CAPACITAT_FREGONA?CAPACITAT_FREGONA:galleda.aigua;
+		this.aiguaFregona=quantitatAigua;
+		galleda.aigua-=quantitatAigua;
+	}
+
+	this.estaSobre = function (cosa) {
+		return (this.fila==cosa.fila)&&(this.columna==cosa.columna);
+	}
+
 	this.secaPeus = function () {
 		if (this.tePeusMolls) this.peusMolls--;
 	}
 
 	this.quiet= function () {
-		return (this.fila==this.filaDesti)&&(this.columna==this.columnaDesti);	
+		return (this.fila==this.filaDesti)&&(this.columna==this.columnaDesti);
 	}
 
 	this.pas=function() {

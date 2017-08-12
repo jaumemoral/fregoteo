@@ -54,19 +54,21 @@ PIXI.loader
 function setup() {
 	var habitacio=new Habitacio(4,4);
 	j=new Jugador(habitacio,0,0);
+	g=new Galleda(2,2,20);
 	habitacio.getRajola(0,0).frega();
 	habitacio.getRajola(0,1).frega();
 	habitacio.getRajola(0,2).frega();
 	habitacio.getRajola(0,3).frega();
-	joc=new Joc(habitacio,j)
+	joc=new Joc(habitacio,j,g)
 	joc.start();
 }
 
 
-function Joc(habitacio,jugador) {
+function Joc(habitacio,jugador,galleda) {
 	var self = this;
 	self.habitacio=habitacio;
 	self.jugador=jugador;
+	self.galleda=galleda;
 	self.acabat=false;
 
     self.start=function() {
@@ -79,7 +81,10 @@ function Joc(habitacio,jugador) {
 		up.press = function() {self.jugador.vesCap(0,-1)};
 		down.press = function() {self.jugador.vesCap(0,1)};
 		right.press = function() {self.jugador.vesCap(1,0)};
-		space.press = function() {self.jugador.frega()};
+		space.press = function() {
+			if (self.jugador.estaSobre(self.galleda)) self.jugador.mullaFregona(self.galleda)
+			else self.jugador.frega()
+		};
 
 		self.stage = new PIXI.Container(),
     	self.renderer = PIXI.autoDetectRenderer(256, 256);
@@ -87,6 +92,7 @@ function Joc(habitacio,jugador) {
 		
 		self.displayHabitacio(self.habitacio);
 		self.displayJugador(self.jugador);
+		self.displayGalleda(self.galleda);
 
 		self.bucle();
 	}		
@@ -94,13 +100,13 @@ function Joc(habitacio,jugador) {
 	self.bucle= function() {
 		self.updateHabitacio(self.habitacio);
 		self.updateJugador(self.jugador);
+		self.updateGalleda(self.galleda);
 		self.renderer.render(self.stage);
 		self.habitacio.pas();
 		self.jugador.pas();
 		if (!self.acabat) {
 			window.requestAnimationFrame(self.bucle);
 		}
-		console.log(self.stage.children.length)
 	}
 
     self.displayJugador=function() {			
@@ -108,9 +114,20 @@ function Joc(habitacio,jugador) {
 		self.stage.addChild(self.cat);				
 	}
 
+    self.displayGalleda=function() {			
+    	var sprite=new PIXI.Sprite(PIXI.loader.resources["cat.png"].texture);		
+    	self.galleda.sprite=sprite;
+		self.stage.addChild(sprite);
+	}
+
     self.updateJugador=function(jugador) {			
 		this.cat.x=jugador.x
 		this.cat.y=jugador.y
+	}
+
+    self.updateGalleda=function(galleda) {			
+		this.galleda.sprite.x=galleda.fila*64;
+		this.galleda.sprite.y=galleda.columna*64;
 	}
 
 	self.displayHabitacio=function(habitacio) {
