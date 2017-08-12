@@ -82,9 +82,21 @@ function Joc(habitacio,jugador,galleda) {
 		down.press = function() {self.jugador.vesCap(0,1)};
 		right.press = function() {self.jugador.vesCap(1,0)};
 		space.press = function() {
-			if (self.jugador.estaSobre(self.galleda)) self.jugador.mullaFregona(self.galleda)
-			else self.jugador.frega()
+			if (self.galleda.estaAgafada()) {
+				console.log("deixa")
+				self.jugador.deixaGalleda(self.galleda);
+				return;
+			}
+
+			if (self.jugador.estaSobre(self.galleda) && !self.galleda.estaAgafada()) {
+				self.jugador.agafaGalleda(self.galleda)
+				self.jugador.mullaFregona(self.galleda)
+				return;
+			}
+			console.log("frego")
+			self.jugador.frega()
 		};
+
 
 		self.stage = new PIXI.Container(),
     	self.renderer = PIXI.autoDetectRenderer(256, 256);
@@ -125,9 +137,14 @@ function Joc(habitacio,jugador,galleda) {
 		this.cat.y=jugador.y
 	}
 
-    self.updateGalleda=function(galleda) {			
-		this.galleda.sprite.x=galleda.fila*64;
-		this.galleda.sprite.y=galleda.columna*64;
+    self.updateGalleda=function(galleda) {	
+    	if (galleda.estaAgafada()) {
+			this.galleda.sprite.x=this.galleda.agafadaPer.x;
+			this.galleda.sprite.y=this.galleda.agafadaPer.y;
+		} else {
+			this.galleda.sprite.x=galleda.fila*64;
+			this.galleda.sprite.y=galleda.columna*64;
+		}
 	}
 
 	self.displayHabitacio=function(habitacio) {

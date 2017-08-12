@@ -4,6 +4,21 @@ function Galleda(fila,columna,aigua) {
 	this.fila=fila;
 	this.columna=columna;
 	this.aigua=aigua;
+	this.agafadaPer=null;
+
+	this.estaAgafada = function() {
+		return this.agafadaPer!=null
+	}
+
+	this.agafa = function(jugador) {
+		this.agafadaPer=jugador
+	}
+
+	this.deixa = function() {
+		this.fila=this.agafadaPer.fila;
+		this.columna=this.agafadaPer.columna;
+		this.agafadaPer=null
+	}
 }
 
 function Jugador(habitacio,fila,columna) {
@@ -65,6 +80,14 @@ function Jugador(habitacio,fila,columna) {
 		var quantitatAigua=galleda.aigua>CAPACITAT_FREGONA?CAPACITAT_FREGONA:galleda.aigua;
 		this.aiguaFregona=quantitatAigua;
 		galleda.aigua-=quantitatAigua;
+	}
+
+	this.agafaGalleda = function (galleda) {
+		galleda.agafa(this)
+	}
+
+	this.deixaGalleda = function (galleda) {
+		galleda.deixa()
 	}
 
 	this.estaSobre = function (cosa) {
@@ -172,7 +195,6 @@ function Rajola(x,y) {
 
 	this.secaUnaMica=function()	{
 		if (this.estaMolla()) this.molla--;
-		console.log("seca una mica "+this.molla)
 	}
 
 	this.estaMolla=function()	{
