@@ -172,6 +172,7 @@ function Rajola(x,y) {
 
 	this.secaUnaMica=function()	{
 		if (this.estaMolla()) this.molla--;
+		console.log("seca una mica "+this.molla)
 	}
 
 	this.estaMolla=function()	{

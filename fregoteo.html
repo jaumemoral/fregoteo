@@ -148,11 +148,9 @@ function Joc(habitacio,jugador,galleda) {
 			var f="net.png";
 			if (rajoles[i].estaBruta()) f="brut.png";
 			rajoles[i].sprite.setTexture(PIXI.loader.resources[f].texture);
-			if (rajoles[i].estaMolla()) {
-				var a=colors[rajoles[i].molla];
-				var tint="0x"+a+a+a+a+"FF"
-				rajoles[i].sprite.tint=tint;
-			}
+			var a=colors[rajoles[i].molla];
+			var tint="0x"+a+a+a+a+"FF"
+			rajoles[i].sprite.tint=tint;
 		}
 	}		
 
