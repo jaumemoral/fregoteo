@@ -98,7 +98,6 @@ function Joc(habitacio,jugador,galleda) {
 			self.jugador.frega()
 		};
 
-
 		self.stage = new PIXI.Container(),
     	self.renderer = PIXI.autoDetectRenderer(256, 256);
 		document.body.appendChild(self.renderer.view);
@@ -155,6 +154,8 @@ function Joc(habitacio,jugador,galleda) {
 			r.x=rajoles[i].x*64
 			r.y=rajoles[i].y*64
 			rajoles[i].sprite=r;
+			r.interactive=true;
+			r.on('pointerdown',function(){alert("click")});
 			self.stage.addChild(r);
 		}
 	}		
