@@ -36,6 +36,8 @@ function Jugador(habitacio,fila,columna) {
 	this.dy=0;
 	this.velocitat=2;
 	this.aiguaFregona=0;
+	this.filaAnterior=-1;
+	this.columnaAnterior=-1;
 
 	this.frega = function() {
 		if (this.aiguaFregona>0) {
@@ -59,7 +61,9 @@ function Jugador(habitacio,fila,columna) {
 	}
 
 	this.setDesti = function () {
-		if (this.quiet() && this.habitacio.posicioValida(this.filaDesti,this.columnaDesti)) {
+		console.log("set desti")
+		//if (this.quiet() && this.habitacio.posicioValida(this.fila+this.dx,this.columna+this.dy)) {
+		if (this.quiet()) {
 			this.filaDesti=this.fila+this.dx;
 			this.columnaDesti=this.columna+this.dy;
 			this.dx=0;
@@ -112,11 +116,20 @@ function Jugador(habitacio,fila,columna) {
 	this.pas=function() {
 		if (this.quiet()) return;
 
-		this.x+=(this.filaDesti-this.fila)*this.velocitat;
-		this.y+=(this.columnaDesti-this.columna)*this.velocitat;		
+		// Movem cap on calgui
+		if (this.filaDesti>this.fila) this.x+=this.velocitat;
+		if (this.filaDesti<this.fila) this.x-=this.velocitat;
+		if (this.columnaDesti>this.columna) this.y+=this.velocitat;
+		if (this.columnaDesti<this.columna) this.y-=this.velocitat;
 
+		// Anem trepitjant al passar per cada casella
+		if ((this.x%64==0)&&(this.y%64==0)) {
+			console.log("trepitjo!")
+			this.mou(Math.floor(this.x/64),Math.floor(this.y/64))
+		}
+
+		// Fins arribar al nostre desti	
 		if ((this.x==this.filaDesti*64)&&(this.y==this.columnaDesti*64)){
-			this.mou(this.filaDesti, this.columnaDesti);
 			this.setDesti()
 		} 
 	}
@@ -171,6 +184,14 @@ function Habitacio(ample,alt) {
 			if (this.llistaRajoles[i].estaBruta()) n++;
 		}
 		return n;
+	}
+
+	this.estaSeca=function() {
+		var n=0;
+		for (var i in this.llistaRajoles) {
+			if (this.llistaRajoles[i].estaMolla()) return
+		}
+		return true;
 	}
 
 	this.posicioValida=function(fila,columna) {
