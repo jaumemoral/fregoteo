@@ -72,6 +72,22 @@ function Joc(habitacio,jugador,galleda) {
 	self.galleda=galleda;
 	self.acabat=false;
 
+	self.tractaAccio=function() {
+		console.log("accio")
+		if (self.galleda.estaAgafada()) {
+			console.log("deixa")
+			self.jugador.deixaGalleda(self.galleda);
+			return;
+		}
+		if (self.jugador.estaSobre(self.galleda) && !self.galleda.estaAgafada()) {
+			self.jugador.agafaGalleda(self.galleda)
+			self.jugador.mullaFregona(self.galleda)
+			return;
+		}
+		console.log("frego")
+		self.jugador.frega()
+	}
+
     self.start=function() {
 		var left = keyboard(37),
 				up = keyboard(38),
@@ -82,21 +98,7 @@ function Joc(habitacio,jugador,galleda) {
 		up.press = function() {self.jugador.vesCap(0,-1)};
 		down.press = function() {self.jugador.vesCap(0,1)};
 		right.press = function() {self.jugador.vesCap(1,0)};
-		space.press = function() {
-			if (self.galleda.estaAgafada()) {
-				console.log("deixa")
-				self.jugador.deixaGalleda(self.galleda);
-				return;
-			}
-
-			if (self.jugador.estaSobre(self.galleda) && !self.galleda.estaAgafada()) {
-				self.jugador.agafaGalleda(self.galleda)
-				self.jugador.mullaFregona(self.galleda)
-				return;
-			}
-			console.log("frego")
-			self.jugador.frega()
-		};
+		space.press = function() {self.tractaAccio()};
 
 		self.stage = new PIXI.Container(),
     	self.renderer = PIXI.autoDetectRenderer(256, 256);
@@ -147,16 +149,27 @@ function Joc(habitacio,jugador,galleda) {
 		}
 	}
 
+	self.tractaClick=function(event) {
+		var rajola=event.target.rajola;
+		if (self.jugador.estaSobre(rajola)) {
+			self.tractaAccio();
+		} else {
+			self.jugador.vesCasella(rajola.fila,rajola.columna);
+		}
+	}
+
 	self.displayHabitacio=function(habitacio) {
 		var rajoles=habitacio.llistaRajoles
 		for (i in rajoles) {
-			var r = new PIXI.Sprite();
-			r.x=rajoles[i].x*64
-			r.y=rajoles[i].y*64
-			rajoles[i].sprite=r;
-			r.interactive=true;
-			r.on('pointerdown',function(){alert("click")});
-			self.stage.addChild(r);
+			var rajola=rajoles[i]
+			var sprite = new PIXI.Sprite();
+			sprite.x=rajola.fila*64
+			sprite.y=rajola.columna*64
+			sprite.interactive=true;
+			sprite.rajola=rajola;
+			sprite.on('pointerdown',self.tractaClick);			
+			rajola.sprite=sprite;			
+			self.stage.addChild(sprite);
 		}
 	}		
 
@@ -177,6 +190,6 @@ function Joc(habitacio,jugador,galleda) {
 }
 
 </script>
-<p>v 0.2</p>
+<p>v 0.3</p>
 </body>
 </html>

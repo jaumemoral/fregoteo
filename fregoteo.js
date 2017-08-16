@@ -51,6 +51,13 @@ function Jugador(habitacio,fila,columna) {
 		this.setDesti();
 	}
 
+	this.vesCasella = function (fila,columna) {
+		if (this.quiet()) {
+			this.filaDesti=fila;
+			this.columnaDesti=columna;
+		}
+	}
+
 	this.setDesti = function () {
 		if (this.quiet()) {
 			this.filaDesti=this.fila+this.dx;
@@ -167,12 +174,12 @@ function Habitacio(ample,alt) {
 	}
 }
 
-function Rajola(x,y) {
+function Rajola(fila,columna) {
 	var self=this;
 	this.bruta=true;
 	this.molla=0;
-	this.x=x;
-	this.y=y;
+	this.fila=fila;
+	this.columna=columna;
 
 	this.frega=function() {
 		this.bruta=false;
