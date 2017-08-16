@@ -154,7 +154,9 @@ function Joc(habitacio,jugador,galleda) {
 		if (self.jugador.estaSobre(rajola)) {
 			self.tractaAccio();
 		} else {
-			self.jugador.vesCasella(rajola.fila,rajola.columna);
+			if (rajola.fila==self.jugador.fila || rajola.columna==self.jugador.columna) {
+				self.jugador.vesCasella(rajola.fila,rajola.columna);
+			}
 		}
 	}
 
@@ -190,6 +192,6 @@ function Joc(habitacio,jugador,galleda) {
 }
 
 </script>
-<p>v 0.3</p>
+<p>v 0.4</p>
 </body>
 </html>
