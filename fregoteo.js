@@ -59,7 +59,7 @@ function Jugador(habitacio,fila,columna) {
 	}
 
 	this.setDesti = function () {
-		if (this.quiet()) {
+		if (this.quiet() && this.habitacio.posicioValida(this.filaDesti,this.columnaDesti)) {
 			this.filaDesti=this.fila+this.dx;
 			this.columnaDesti=this.columna+this.dy;
 			this.dx=0;
@@ -163,6 +163,22 @@ function Habitacio(ample,alt) {
 			resultat+="\n"
 		}
 		return resultat;
+	}
+
+	this.rajolesBrutes=function() {
+		var n=0;
+		for (var i in this.llistaRajoles) {
+			if (this.llistaRajoles[i].estaBruta()) n++;
+		}
+		return n;
+	}
+
+	this.posicioValida=function(fila,columna) {
+		if (fila<0) return false;
+		if (columna<0) return false;
+		if (fila>=alt) return false;
+		if (columna>=ample) return false;
+		if (this.getRajola(fila,columna)==null) return false;
 	}
 
 	this.pas = function() {

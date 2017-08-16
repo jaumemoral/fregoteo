@@ -7,7 +7,7 @@
 </head>
 <body>
 <script src="fregoteo.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.3/pixi.min.js"></script>
+<script src="lib/pixi-4.5.3.min.js"></script>
 <script>
 function keyboard(keyCode) {
   var key = {};
@@ -72,6 +72,12 @@ function Joc(habitacio,jugador,galleda) {
 	self.galleda=galleda;
 	self.acabat=false;
 
+	self.actualitzaMarcador=function () {
+		document.getElementById("fregona").innerHTML=self.jugador.aiguaFregona
+		document.getElementById("galleda").innerHTML=self.galleda.aigua
+		document.getElementById("brutes").innerHTML=self.habitacio.rajolesBrutes()
+	}
+
 	self.tractaAccio=function() {
 		console.log("accio")
 		if (self.galleda.estaAgafada()) {
@@ -85,7 +91,7 @@ function Joc(habitacio,jugador,galleda) {
 			return;
 		}
 		console.log("frego")
-		self.jugador.frega()
+		self.jugador.frega()		
 	}
 
     self.start=function() {
@@ -118,6 +124,7 @@ function Joc(habitacio,jugador,galleda) {
 		self.renderer.render(self.stage);
 		self.habitacio.pas();
 		self.jugador.pas();
+		self.actualitzaMarcador()
 		if (!self.acabat) {
 			window.requestAnimationFrame(self.bucle);
 		}
@@ -192,6 +199,6 @@ function Joc(habitacio,jugador,galleda) {
 }
 
 </script>
-<p>v 0.4</p>
+<p>Fregona: <span id="fregona"></span> Galleda: <span id="galleda"></span> Brutes: <span id="brutes"></span></p>
 </body>
 </html>
