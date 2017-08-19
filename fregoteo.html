@@ -54,12 +54,14 @@ PIXI.loader
 //This `setup` function will run when the image has loaded
 function setup() {
 	var habitacio=new Habitacio(4,4);
-	j=new Jugador(habitacio,0,0);
-	g=new Galleda(2,2,20);
+	j=new Jugador(habitacio,new Posicio(0,0));
+	g=new Galleda(new Posicio(2,2),20);
+	/*
 	habitacio.getRajola(0,0).frega();
 	habitacio.getRajola(0,1).frega();
 	habitacio.getRajola(0,2).frega();
 	habitacio.getRajola(0,3).frega();
+	*/
 	joc=new Joc(habitacio,j,g)
 	joc.start();
 }
@@ -153,11 +155,11 @@ function Joc(habitacio,jugador,galleda) {
 
     self.updateGalleda=function(galleda) {	
     	if (galleda.estaAgafada()) {
-			this.galleda.sprite.x=this.galleda.agafadaPer.x;
-			this.galleda.sprite.y=this.galleda.agafadaPer.y;
+			galleda.sprite.x=galleda.agafadaPer.x;
+			galleda.sprite.y=galleda.agafadaPer.y-10;
 		} else {
-			this.galleda.sprite.x=galleda.fila*64;
-			this.galleda.sprite.y=galleda.columna*64;
+			galleda.sprite.x=galleda.posicio.coordenadaX();
+			galleda.sprite.y=galleda.posicio.coordenadaY();
 		}
 	}
 
@@ -166,8 +168,8 @@ function Joc(habitacio,jugador,galleda) {
 		if (self.jugador.estaSobre(rajola)) {
 			self.tractaAccio();
 		} else {
-			if (rajola.fila==self.jugador.fila || rajola.columna==self.jugador.columna) {
-				self.jugador.vesCasella(rajola.fila,rajola.columna);
+			if (rajola.posicio.fila==self.jugador.posicio.fila || rajola.posicio.columna==self.jugador.posicio.columna) {
+				self.jugador.vesCasella(rajola.posicio);
 			}
 		}
 	}
@@ -177,8 +179,8 @@ function Joc(habitacio,jugador,galleda) {
 		for (i in rajoles) {
 			var rajola=rajoles[i]
 			var sprite = new PIXI.Sprite();
-			sprite.x=rajola.fila*64
-			sprite.y=rajola.columna*64
+			sprite.x=rajola.posicio.coordenadaX();
+			sprite.y=rajola.posicio.coordenadaY();
 			sprite.interactive=true;
 			sprite.rajola=rajola;
 			sprite.on('pointerdown',self.tractaClick);			

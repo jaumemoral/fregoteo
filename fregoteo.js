@@ -1,8 +1,30 @@
 var CAPACITAT_FREGONA=5;
 
-function Galleda(fila,columna,aigua) {
+function Posicio(fila,columna) {
 	this.fila=fila;
 	this.columna=columna;
+
+	this.igual=function(altraPosicio) {
+		if (altraPosicio==null) return false;
+		return (this.fila==altraPosicio.fila && this.columna==altraPosicio.columna)
+	}
+
+	this.coordenadaX=function() {
+		return this.fila*64
+	}
+
+	this.coordenadaY=function() {
+		return this.columna*64
+	}
+
+	this.toString=function () {
+		return "("+this.fila+","+this.columna+")";
+	}
+
+}
+
+function Galleda(posicio,aigua) {
+	this.posicio=posicio;
 	this.aigua=aigua;
 	this.agafadaPer=null;
 
@@ -15,33 +37,28 @@ function Galleda(fila,columna,aigua) {
 	}
 
 	this.deixa = function() {
-		this.fila=this.agafadaPer.fila;
-		this.columna=this.agafadaPer.columna;
+		this.posicio=this.agafadaPer.posicio;
 		this.agafadaPer=null
 	}
 }
 
-function Jugador(habitacio,fila,columna) {
+function Jugador(habitacio,posicio) {
 	var self=this;
 	this.habitacio=habitacio;
-	this.fila=fila;
-	this.columna=columna;
+	this.posicio=posicio;
 
-	this.filaDesti=fila;
-	this.columnaDesti=columna;
-	this.x=this.fila*64;
-	this.y=this.columna*64;
+	this.desti=posicio;
+	this.x=this.posicio.coordenadaX();
+	this.y=this.posicio.coordenadaY();
 	this.peusMolls=0;
 	this.dx=0;
 	this.dy=0;
 	this.velocitat=2;
 	this.aiguaFregona=0;
-	this.filaAnterior=-1;
-	this.columnaAnterior=-1;
 
 	this.frega = function() {
 		if (this.aiguaFregona>0) {
-			rajola=habitacio.getRajola(this.fila,this.columna);
+			rajola=habitacio.getRajola(this.posicio);
 			rajola.frega();
 			this.aiguaFregona--;
 		}
@@ -53,28 +70,23 @@ function Jugador(habitacio,fila,columna) {
 		this.setDesti();
 	}
 
-	this.vesCasella = function (fila,columna) {
-		if (this.quiet()) {
-			this.filaDesti=fila;
-			this.columnaDesti=columna;
-		}
+	this.vesCasella = function (posicio) {
+		if (this.quiet()) this.posicio=posicio;
 	}
 
 	this.setDesti = function () {
 		console.log("set desti")
 		//if (this.quiet() && this.habitacio.posicioValida(this.fila+this.dx,this.columna+this.dy)) {
 		if (this.quiet()) {
-			this.filaDesti=this.fila+this.dx;
-			this.columnaDesti=this.columna+this.dy;
+			this.desti=new Posicio(this.posicio.fila+this.dx, this.posicio.columna+this.dy);
 			this.dx=0;
 			this.dy=0;
 		}
 	}
 
-	this.mou = function (fila,columna) {
-		this.fila=fila;
-		this.columna=columna;	
-		var rajola=habitacio.getRajola(this.fila,this.columna);
+	this.mou = function (posicio) {
+		this.posicio=posicio;	
+		var rajola=habitacio.getRajola(this.posicio);
 		rajola.trepitja(this);
 		this.secaPeus();
 	}
@@ -102,7 +114,7 @@ function Jugador(habitacio,fila,columna) {
 	}
 
 	this.estaSobre = function (cosa) {
-		return (this.fila==cosa.fila)&&(this.columna==cosa.columna);
+		return (this.posicio.igual(cosa.posicio));
 	}
 
 	this.secaPeus = function () {
@@ -110,26 +122,26 @@ function Jugador(habitacio,fila,columna) {
 	}
 
 	this.quiet= function () {
-		return (this.fila==this.filaDesti)&&(this.columna==this.columnaDesti);
+		return (this.posicio.igual(this.desti));
 	}
 
 	this.pas=function() {
 		if (this.quiet()) return;
 
 		// Movem cap on calgui
-		if (this.filaDesti>this.fila) this.x+=this.velocitat;
-		if (this.filaDesti<this.fila) this.x-=this.velocitat;
-		if (this.columnaDesti>this.columna) this.y+=this.velocitat;
-		if (this.columnaDesti<this.columna) this.y-=this.velocitat;
+		if (this.desti.fila>this.posicio.fila) this.x+=this.velocitat;
+		if (this.desti.fila<this.posicio.fila) this.x-=this.velocitat;
+		if (this.desti.columna>this.posicio.columna) this.y+=this.velocitat;
+		if (this.desti.columna<this.posicio.columna) this.y-=this.velocitat;
 
 		// Anem trepitjant al passar per cada casella
 		if ((this.x%64==0)&&(this.y%64==0)) {
 			console.log("trepitjo!")
-			this.mou(Math.floor(this.x/64),Math.floor(this.y/64))
+			this.mou(new Posicio(Math.floor(this.x/64),Math.floor(this.y/64)))
 		}
 
 		// Fins arribar al nostre desti	
-		if ((this.x==this.filaDesti*64)&&(this.y==this.columnaDesti*64)){
+		if ((this.x==this.desti.coordenadaX())&&(this.y==this.desti.coordenadaY())){
 			this.setDesti()
 		} 
 	}
@@ -146,7 +158,7 @@ function Habitacio(ample,alt) {
 		for (i=0;i<this.alt;i++) {
 			var fila=[]
 			for (j=0;j<this.ample;j++) {
-				r=new Rajola(i,j);
+				r=new Rajola(new Posicio(i,j));
 				fila.push(r)
 				this.llistaRajoles.push(r);
 			}
@@ -156,8 +168,8 @@ function Habitacio(ample,alt) {
 	}
 	this.init();
 
-	this.getRajola = function(x,y) {
-		return this.rajoles[x][y];
+	this.getRajola = function(posicio) {
+		return this.rajoles[posicio.fila][posicio.columna];
 	}
 
 	this.secaUnaMica = function () {
@@ -170,7 +182,7 @@ function Habitacio(ample,alt) {
 		var resultat="";
 		for (var i=0;i<this.alt;i++) {
 			for (var j=0;j<this.ample;j++) {
-				r=this.getRajola(i,j)
+				r=this.rajoles[i][j]
 				resultat+=r.toString()
 			}
 			resultat+="\n"
@@ -194,12 +206,12 @@ function Habitacio(ample,alt) {
 		return true;
 	}
 
-	this.posicioValida=function(fila,columna) {
-		if (fila<0) return false;
-		if (columna<0) return false;
-		if (fila>=alt) return false;
-		if (columna>=ample) return false;
-		if (this.getRajola(fila,columna)==null) return false;
+	this.posicioValida=function(posicio) {
+		if (posicio.fila<0) return false;
+		if (posicio.columna<0) return false;
+		if (posicio.fila>=alt) return false;
+		if (posicio.columna>=ample) return false;
+		if (this.getRajola(posicio)==null) return false;
 	}
 
 	this.pas = function() {
@@ -211,12 +223,11 @@ function Habitacio(ample,alt) {
 	}
 }
 
-function Rajola(fila,columna) {
+function Rajola(posicio) {
 	var self=this;
 	this.bruta=true;
 	this.molla=0;
-	this.fila=fila;
-	this.columna=columna;
+	this.posicio=posicio;
 
 	this.frega=function() {
 		this.bruta=false;
