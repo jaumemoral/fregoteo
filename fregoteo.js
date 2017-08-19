@@ -71,7 +71,7 @@ function Jugador(habitacio,posicio) {
 	}
 
 	this.vesCasella = function (posicio) {
-		if (this.quiet()) this.posicio=posicio;
+		if (this.quiet()) this.desti=posicio;
 	}
 
 	this.setDesti = function () {

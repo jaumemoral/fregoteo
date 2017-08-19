@@ -56,12 +56,6 @@ function setup() {
 	var habitacio=new Habitacio(4,4);
 	j=new Jugador(habitacio,new Posicio(0,0));
 	g=new Galleda(new Posicio(2,2),20);
-	/*
-	habitacio.getRajola(0,0).frega();
-	habitacio.getRajola(0,1).frega();
-	habitacio.getRajola(0,2).frega();
-	habitacio.getRajola(0,3).frega();
-	*/
 	joc=new Joc(habitacio,j,g)
 	joc.start();
 }
