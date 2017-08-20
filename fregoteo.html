@@ -7,45 +7,9 @@
 </head>
 <body>
 <script src="fregoteo.js"></script>
+<script src="util.js"></script>
 <script src="lib/pixi-4.5.3.min.js"></script>
 <script>
-function keyboard(keyCode) {
-  var key = {};
-  key.code = keyCode;
-  key.isDown = false;
-  key.isUp = true;
-  key.press = undefined;
-  key.release = undefined;
-  //The `downHandler`
-  key.downHandler = function(event) {
-    if (event.keyCode === key.code) {
-      if (key.isUp && key.press) key.press();
-      key.isDown = true;
-      key.isUp = false;
-    }
-    event.preventDefault();
-  };
-
-  //The `upHandler`
-  key.upHandler = function(event) {
-    if (event.keyCode === key.code) {
-      if (key.isDown && key.release) key.release();
-      key.isDown = false;
-      key.isUp = true;
-    }
-    event.preventDefault();
-  };
-
-  //Attach event listeners
-  window.addEventListener(
-    "keydown", key.downHandler.bind(key), false
-  );
-  window.addEventListener(
-    "keyup", key.upHandler.bind(key), false
-  );
-  return key;
-}
-
 //Use Pixi's built-in `loader` object to load an image
 PIXI.loader
   .add("brut.png").add("net.png").add("galleda.png").add("maid2.png")
@@ -56,28 +20,28 @@ function setup() {
 	var habitacio=new Habitacio(4,4);
 	j=new Jugador(habitacio,new Posicio(0,0));
 	g=new Galleda(new Posicio(2,2),20);
-	joc=new Joc(habitacio,j,g)
+	joc=new Joc(habitacio,j,g,30)
 	joc.start();
 }
 
 
-function Joc(habitacio,jugador,galleda) {
+function Joc(habitacio,jugador,galleda,temps) {
 	var self = this;
 	self.habitacio=habitacio;
 	self.jugador=jugador;
 	self.galleda=galleda;
+	self.crono=new Crono(temps);
 	self.acabat=false;
 
 	self.actualitzaMarcador=function () {
 		document.getElementById("fregona").innerHTML=self.jugador.aiguaFregona
 		document.getElementById("galleda").innerHTML=self.galleda.aigua
 		document.getElementById("brutes").innerHTML=self.habitacio.rajolesBrutes()
+		document.getElementById("temps").innerHTML=self.crono.temps
 	}
 
 	self.tractaAccio=function() {
-		console.log("accio")
 		if (self.galleda.estaAgafada()) {
-			console.log("deixa")
 			self.jugador.deixaGalleda(self.galleda);
 			return;
 		}
@@ -86,7 +50,6 @@ function Joc(habitacio,jugador,galleda) {
 			self.jugador.mullaFregona(self.galleda)
 			return;
 		}
-		console.log("frego")
 		self.jugador.frega()		
 	}
 
@@ -96,10 +59,10 @@ function Joc(habitacio,jugador,galleda) {
 				right = keyboard(39),
 				down = keyboard(40),
 				space = keyboard(32);
-		left.press = function() {self.jugador.vesCap(-1,0)};
-		up.press = function() {self.jugador.vesCap(0,-1)};
-		down.press = function() {self.jugador.vesCap(0,1)};
-		right.press = function() {self.jugador.vesCap(1,0)};
+		left.press = function() {self.jugador.vesCap(Direccio.ESQUERRA)};
+		up.press = function() {self.jugador.vesCap(Direccio.AMUNT)};
+		down.press = function() {self.jugador.vesCap(Direccio.AVALL)};
+		right.press = function() {self.jugador.vesCap(Direccio.DRETA)};
 		space.press = function() {self.tractaAccio()};
 
 		self.stage = new PIXI.Container(),
@@ -120,31 +83,33 @@ function Joc(habitacio,jugador,galleda) {
 		self.renderer.render(self.stage);
 		self.habitacio.pas();
 		self.jugador.pas();
+		self.crono.pas();
 		self.actualitzaMarcador()
 		self.acabatBe=(self.habitacio.estaSeca() && self.habitacio.rajolesBrutes()==0)
 		self.acabatMalament=(self.habitacio.rajolesBrutes()>0 && self.jugador.aiguaFregona==0 && self.galleda.aigua==0)
-		if (!(self.acabatBe||self.acabatMalament)) {
+		self.acabatSenseTemps=(self.crono.temps==0)
+		if (!(self.acabatBe||self.acabatMalament||self.acabatSenseTemps)) {
 			window.requestAnimationFrame(self.bucle);
 		} else {
 			if (self.acabatBe) alert("Habitació neta!")
 			if (self.acabatMalament) alert("Se t'ha acabat l'aigua...")
+			if (self.acabatSenseTemps) alert("Se t'ha acabat el temps...")
 		}
 	}
 
     self.displayJugador=function() {			
-		self.cat=new PIXI.Sprite(PIXI.loader.resources["maid2.png"].texture);		
-		self.stage.addChild(self.cat);				
+		self.jugador.sprite=new PIXI.Sprite(PIXI.loader.resources["maid2.png"].texture);		
+		self.stage.addChild(self.jugador.sprite);				
 	}
 
     self.displayGalleda=function() {			
-    	var sprite=new PIXI.Sprite(PIXI.loader.resources["galleda.png"].texture);
-    	self.galleda.sprite=sprite;
-		self.stage.addChild(sprite);
+    	self.galleda.sprite=new PIXI.Sprite(PIXI.loader.resources["galleda.png"].texture);
+		self.stage.addChild(self.galleda.sprite);
 	}
 
     self.updateJugador=function(jugador) {			
-		this.cat.x=jugador.x
-		this.cat.y=jugador.y
+		jugador.sprite.x=jugador.x
+		jugador.sprite.y=jugador.y
 	}
 
     self.updateGalleda=function(galleda) {	
@@ -162,9 +127,7 @@ function Joc(habitacio,jugador,galleda) {
 		if (self.jugador.estaSobre(rajola)) {
 			self.tractaAccio();
 		} else {
-			if (rajola.posicio.fila==self.jugador.posicio.fila || rajola.posicio.columna==self.jugador.posicio.columna) {
-				self.jugador.vesCasella(rajola.posicio);
-			}
+			self.jugador.vesCasella(rajola.posicio);
 		}
 	}
 
@@ -201,5 +164,6 @@ function Joc(habitacio,jugador,galleda) {
 
 </script>
 <p>Fregona: <span id="fregona"></span> Galleda: <span id="galleda"></span> Brutes: <span id="brutes"></span></p>
+<p><span id="temps"></span></p>
 </body>
 </html>

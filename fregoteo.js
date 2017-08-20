@@ -1,4 +1,5 @@
 var CAPACITAT_FREGONA=5;
+var VELOCITAT=2;
 
 function Posicio(fila,columna) {
 	this.fila=fila;
@@ -21,8 +22,40 @@ function Posicio(fila,columna) {
 		return "("+this.fila+","+this.columna+")";
 	}
 
+	this.mou=function (direccio) {
+		if (direccio==null) return this;
+		return new Posicio(this.fila+direccio[0],this.columna+direccio[1]);
+	}
+
+	this.calculaDireccioCapA=function(posicio) {
+		if (this.fila>posicio.fila) return Direccio.ESQUERRA;
+		if (this.fila<posicio.fila) return Direccio.DRETA;
+		if (this.columna>posicio.columna) return Direccio.AMUNT;
+		if (this.columna<posicio.columna) return Direccio.AVALL;
+	}
 }
 
+var Direccio={
+	'ESQUERRA':[-1,0],
+	'AMUNT':[0,-1],
+	'AVALL':[0,1],
+	'DRETA':[1,0]
+}
+
+function Crono(temps) {
+	this.temps=temps
+	this.abans=new Date().getTime()
+
+	this.pas=function() {
+		var ara=new Date().getTime();
+		if (ara>this.abans+1000) {
+			this.abans=ara
+			if (this.temps>0) this.temps--;
+		}
+	}
+
+}
+		
 function Galleda(posicio,aigua) {
 	this.posicio=posicio;
 	this.aigua=aigua;
@@ -51,9 +84,7 @@ function Jugador(habitacio,posicio) {
 	this.x=this.posicio.coordenadaX();
 	this.y=this.posicio.coordenadaY();
 	this.peusMolls=0;
-	this.dx=0;
-	this.dy=0;
-	this.velocitat=2;
+	this.direccio=null;
 	this.aiguaFregona=0;
 
 	this.frega = function() {
@@ -64,24 +95,33 @@ function Jugador(habitacio,posicio) {
 		}
 	}
 
-	this.vesCap = function (dx,dy) {
-		this.dx=dx;
-		this.dy=dy;
+	this.vesCap = function (direccio) {
+		this.direccio=direccio;
+		console.log(direccio)
 		this.setDesti();
 	}
 
 	this.vesCasella = function (posicio) {
-		if (this.quiet()) this.desti=posicio;
+		if (!this.quiet()) return;
+		var direccio=this.posicio.calculaDireccioCapA(posicio)
+		console.log(direccio);
+		var p=this.posicio;
+		this.desti=p;
+		while (!p.igual(posicio)) {
+			p=p.mou(direccio);
+			if (!this.habitacio.posicioValida(p)) return;
+			this.desti=p;
+		}
 	}
 
 	this.setDesti = function () {
 		console.log("set desti")
-		//if (this.quiet() && this.habitacio.posicioValida(this.fila+this.dx,this.columna+this.dy)) {
-		if (this.quiet()) {
-			this.desti=new Posicio(this.posicio.fila+this.dx, this.posicio.columna+this.dy);
-			this.dx=0;
-			this.dy=0;
-		}
+		if (!this.quiet()) return;
+		var possibleDesti=this.desti.mou(this.direccio);
+		if (!this.habitacio.posicioValida(possibleDesti)) return
+		
+		this.desti=possibleDesti;
+		this.direccio=null;
 	}
 
 	this.mou = function (posicio) {
@@ -129,10 +169,10 @@ function Jugador(habitacio,posicio) {
 		if (this.quiet()) return;
 
 		// Movem cap on calgui
-		if (this.desti.fila>this.posicio.fila) this.x+=this.velocitat;
-		if (this.desti.fila<this.posicio.fila) this.x-=this.velocitat;
-		if (this.desti.columna>this.posicio.columna) this.y+=this.velocitat;
-		if (this.desti.columna<this.posicio.columna) this.y-=this.velocitat;
+		if (this.desti.fila>this.posicio.fila) this.x+=VELOCITAT;
+		if (this.desti.fila<this.posicio.fila) this.x-=VELOCITAT;
+		if (this.desti.columna>this.posicio.columna) this.y+=VELOCITAT;
+		if (this.desti.columna<this.posicio.columna) this.y-=VELOCITAT;
 
 		// Anem trepitjant al passar per cada casella
 		if ((this.x%64==0)&&(this.y%64==0)) {
@@ -158,6 +198,7 @@ function Habitacio(ample,alt) {
 		for (i=0;i<this.alt;i++) {
 			var fila=[]
 			for (j=0;j<this.ample;j++) {
+				if ((i==1)&&(j==1)) break;
 				r=new Rajola(new Posicio(i,j));
 				fila.push(r)
 				this.llistaRajoles.push(r);
@@ -207,11 +248,13 @@ function Habitacio(ample,alt) {
 	}
 
 	this.posicioValida=function(posicio) {
+		console.log("valid?"+posicio);
 		if (posicio.fila<0) return false;
 		if (posicio.columna<0) return false;
-		if (posicio.fila>=alt) return false;
-		if (posicio.columna>=ample) return false;
+		if (posicio.fila>=this.alt) return false;
+		if (posicio.columna>=this.ample) return false;
 		if (this.getRajola(posicio)==null) return false;
+		return true;
 	}
 
 	this.pas = function() {
