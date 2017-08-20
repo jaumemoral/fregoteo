@@ -307,38 +307,3 @@ function Rajola(posicio) {
 		return "["+(this.bruta?"X":".")+this.molla+"]"
 	}
 }
-/*
-function assert(condicio) {
-	if (!condicio) {
-		console.log("Peta")
-		process.exit();
-	}
-}
-
-function test() {
-	var habitacio=new Habitacio(3,3);
-	console.log(habitacio.toString())
-	j=new Jugador(habitacio,0,0);
-	j.mou(1,0)
-	j.frega()	
-	habitacio.secaUnaMica()	
-	j.mou(0,1)
-	var r=habitacio.getRajola(1,0)	
-	assert(r.estaMolla(),"Casella 1,0 molla")	
-	/*
-	j.frega()
-	var r=habitacio.getRajola(1,1)
-	assert(r.estaMolla(),"Casella 1,1 molla")	
-	j.mou(0,-1)
-	var r=habitacio.getRajola(1,0)
-	assert(r.estaBruta(),"Casella 1,0 bruta")	
-	console.log(habitacio.toString())
-	j.mou(0,1)	
-	console.log(habitacio.toString())
-	habitacio.secaUnaMica()	
-	console.log(habitacio.toString())
-
-}
-
-test()
-*/
