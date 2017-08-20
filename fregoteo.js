@@ -11,11 +11,11 @@ function Posicio(fila,columna) {
 	}
 
 	this.coordenadaX=function() {
-		return this.fila*64
+		return this.columna*64
 	}
 
 	this.coordenadaY=function() {
-		return this.columna*64
+		return this.fila*64
 	}
 
 	this.toString=function () {
@@ -28,18 +28,18 @@ function Posicio(fila,columna) {
 	}
 
 	this.calculaDireccioCapA=function(posicio) {
-		if (this.fila>posicio.fila) return Direccio.ESQUERRA;
-		if (this.fila<posicio.fila) return Direccio.DRETA;
-		if (this.columna>posicio.columna) return Direccio.AMUNT;
-		if (this.columna<posicio.columna) return Direccio.AVALL;
+		if (this.fila>posicio.fila) return Direccio.AMUNT;
+		if (this.fila<posicio.fila) return Direccio.AVALL;
+		if (this.columna>posicio.columna) return Direccio.ESQUERRA;
+		if (this.columna<posicio.columna) return Direccio.DRETA;
 	}
 }
 
 var Direccio={
-	'ESQUERRA':[-1,0],
-	'AMUNT':[0,-1],
-	'AVALL':[0,1],
-	'DRETA':[1,0]
+	'ESQUERRA':[0,-1],
+	'AMUNT':[-1,0],
+	'AVALL':[1,0],
+	'DRETA':[0,1]
 }
 
 function Crono(temps) {
@@ -169,15 +169,15 @@ function Jugador(habitacio,posicio) {
 		if (this.quiet()) return;
 
 		// Movem cap on calgui
-		if (this.desti.fila>this.posicio.fila) this.x+=VELOCITAT;
-		if (this.desti.fila<this.posicio.fila) this.x-=VELOCITAT;
-		if (this.desti.columna>this.posicio.columna) this.y+=VELOCITAT;
-		if (this.desti.columna<this.posicio.columna) this.y-=VELOCITAT;
+		if (this.desti.fila>this.posicio.fila) this.y+=VELOCITAT;
+		if (this.desti.fila<this.posicio.fila) this.y-=VELOCITAT;
+		if (this.desti.columna>this.posicio.columna) this.x+=VELOCITAT;
+		if (this.desti.columna<this.posicio.columna) this.x-=VELOCITAT;
 
 		// Anem trepitjant al passar per cada casella
 		if ((this.x%64==0)&&(this.y%64==0)) {
 			console.log("trepitjo!")
-			this.mou(new Posicio(Math.floor(this.x/64),Math.floor(this.y/64)))
+			this.mou(new Posicio(Math.floor(this.y/64),Math.floor(this.x/64)))
 		}
 
 		// Fins arribar al nostre desti	
