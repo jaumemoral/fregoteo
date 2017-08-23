@@ -23,7 +23,7 @@ var Joc={
 		else alert("Acabat");
 		Joc.start();
 	},
-	noPasso:function() {
+	noPassoPantalla:function() {
 		Joc.start();
 	}	
 };
@@ -78,14 +78,15 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		self.stage = new PIXI.Container(),
     	self.renderer = PIXI.autoDetectRenderer(self.habitacio.ample*MIDA_RAJOLA, self.habitacio.alt*MIDA_RAJOLA);
     	self.renderer.backgroundColor = 0xFFFFFF;
-		document.body.appendChild(self.renderer.view);
+    	document.getElementById("stage").innerHTML="";
+		document.getElementById("stage").appendChild(self.renderer.view);
 		
 		self.displayHabitacio(self.habitacio);
 		self.displayJugador(self.jugador);
 		self.displayGalleda(self.galleda);
 
-		self.passoPantalla=passoPantalla
-		self.noPassoPantalla=noPassoPantalla
+		self.passoPantalla=passoPantalla;
+		self.noPassoPantalla=noPassoPantalla;
 		self.bucle();
 	}		
 
@@ -105,7 +106,7 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 			window.requestAnimationFrame(self.bucle);
 		} else {
 			if (self.acabatBe) {alert("Habitació neta!");self.passoPantalla()}
-			if (self.acabatMalament) {alert("Se t'ha acabat l'aigua...");self.passoPantalla()}
+			if (self.acabatMalament) {alert("Se t'ha acabat l'aigua...");self.noPassoPantalla()}
 			if (self.acabatSenseTemps) {alert("Se t'ha acabat el temps...");self.noPassoPantalla()}
 		}
 	}
@@ -176,7 +177,15 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 }
 
 </script>
-<p>Fregona: <span id="fregona"></span> Galleda: <span id="galleda"></span> Brutes: <span id="brutes"></span></p>
-<p><span id="temps"></span></p>
+<style>
+div {text-align:center;padding-bottom:1em;}
+</style>
+<div>
+Fregona: <span id="fregona"></span> Galleda: <span id="galleda"></span> Brutes: <span id="brutes"></span>
+</div>
+<div id="stage"></div>
+<div>
+<span id="temps"></span>
+</div>
 </body>
 </html>
