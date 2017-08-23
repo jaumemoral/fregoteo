@@ -184,7 +184,7 @@ function Jugador(habitacio,posicio) {
 	}
 }
 
-var ConstructorJoc={
+var ConstructorPantalles={
 	desdePantalla:function (pantalla) {
 		var strings=pantalla.habitacio;
 		var ample=strings[0].length;
@@ -207,8 +207,11 @@ var ConstructorJoc={
 		}
 		h.init();
 		g=new Galleda(posicioGalleda,h.llistaRajoles.length+5);
-		return new Joc (h,j,g,pantalla.temps)
-	}	
+		return new Pantalla(h,j,g,pantalla.temps)
+	},
+	carrega:function(npantalla) {
+		return ConstructorPantalles.desdePantalla(PANTALLES[npantalla]);
+	}
 }
 
 function Habitacio(ample,alt) {

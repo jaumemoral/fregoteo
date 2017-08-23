@@ -1,6 +1,6 @@
 var PANTALLES=[
 	{
-		temps: 30,
+		temps: 40,
 		habitacio: [
 			"J   ",
 			"  X ",
@@ -9,7 +9,7 @@ var PANTALLES=[
 		]
 	},
 	{
-		temps: 40,
+		temps: 50,
 		habitacio: [
 			"J    ",
 			"  X  ",

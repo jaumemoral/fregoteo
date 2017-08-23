@@ -11,22 +11,32 @@
 <script src="util.js"></script>
 <script src="lib/pixi-4.5.3.min.js"></script>
 <script>
+
+var Joc={
+	npantalla:0,
+	start:function(){
+		var pantalla=ConstructorPantalles.carrega(Joc.npantalla);
+		pantalla.start(Joc.passoPantalla,Joc.noPassoPantalla);
+	},
+	passoPantalla:function() {
+		if (Joc.npantalla<PANTALLES.length) Joc.npantalla++;
+		else alert("Acabat");
+		Joc.start();
+	},
+	noPasso:function() {
+		Joc.start();
+	}	
+};
+
+
 //Use Pixi's built-in `loader` object to load an image
 PIXI.loader
   .add("brut.png").add("net.png").add("galleda.png").add("maid2.png")
-  .load(setup);
-
-//This `setup` function will run when the image has loaded
-function setup() {
-	var pantalla=1;
-	var joc=ConstructorJoc.desdePantalla(PANTALLES[pantalla]);
-	joc.start();
-}
+  .load(Joc.start);
 
 
-function Joc(habitacio,jugador,galleda,temps) {
+function Pantalla(habitacio,jugador,galleda,temps) {
 	var self = this;
-	self.pantalla=0;
 	self.habitacio=habitacio;
 	self.jugador=jugador;
 	self.galleda=galleda;
@@ -53,7 +63,7 @@ function Joc(habitacio,jugador,galleda,temps) {
 		self.jugador.frega()		
 	}
 
-    self.start=function() {
+    self.start=function(passoPantalla,noPassoPantalla) {
 		var left = keyboard(37),
 				up = keyboard(38),
 				right = keyboard(39),
@@ -74,6 +84,8 @@ function Joc(habitacio,jugador,galleda,temps) {
 		self.displayJugador(self.jugador);
 		self.displayGalleda(self.galleda);
 
+		self.passoPantalla=passoPantalla
+		self.noPassoPantalla=noPassoPantalla
 		self.bucle();
 	}		
 
@@ -92,9 +104,9 @@ function Joc(habitacio,jugador,galleda,temps) {
 		if (!(self.acabatBe||self.acabatMalament||self.acabatSenseTemps)) {
 			window.requestAnimationFrame(self.bucle);
 		} else {
-			if (self.acabatBe) alert("Habitació neta!")
-			if (self.acabatMalament) alert("Se t'ha acabat l'aigua...")
-			if (self.acabatSenseTemps) alert("Se t'ha acabat el temps...")
+			if (self.acabatBe) {alert("Habitació neta!");self.passoPantalla()}
+			if (self.acabatMalament) {alert("Se t'ha acabat l'aigua...");self.passoPantalla()}
+			if (self.acabatSenseTemps) {alert("Se t'ha acabat el temps...");self.noPassoPantalla()}
 		}
 	}
 
