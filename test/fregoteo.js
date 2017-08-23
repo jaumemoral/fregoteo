@@ -1,5 +1,5 @@
 describe("Provant fregoteo", function() {
-  var habitacio=new Habitacio(3,3);
+  var habitacio=new Habitacio(3,3).buida();
   var jugador=new Jugador(habitacio,new Posicio(0,0));
   var galleda=new Galleda(new Posicio(0,0),20);
 

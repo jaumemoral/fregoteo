@@ -217,10 +217,24 @@ function Habitacio(ample,alt) {
 	this.ample=ample;
 	this.alt=alt;
 
+	this.buida = function() {
+		this.rajoles=[];
+		for (var i=0;i<this.alt;i++) {
+			var fila=[]
+			for (var j=0;j<this.ample;j++) {
+				var r=new Rajola(new Posicio(i,j))
+				fila.push(r);
+			}
+			this.rajoles.push(fila);
+		}
+		this.init();
+		return this;
+	}
+
 	this.init = function() {
 		this.llistaRajoles=[];
-		for (i=0;i<this.alt;i++) {
-			for (j=0;j<this.ample;j++) {
+		for (var i=0;i<this.alt;i++) {
+			for (var j=0;j<this.ample;j++) {
 				var r=this.rajoles[i][j]
 				if (r!=null) this.llistaRajoles.push(r);
 			}
