@@ -7,6 +7,7 @@
 </head>
 <body>
 <script src="fregoteo.js"></script>
+<script src="pantalles.js"></script>
 <script src="util.js"></script>
 <script src="lib/pixi-4.5.3.min.js"></script>
 <script>
@@ -17,16 +18,15 @@ PIXI.loader
 
 //This `setup` function will run when the image has loaded
 function setup() {
-	var habitacio=new ConstructorHabitacions().buida(5,5);
-	j=new Jugador(habitacio,new Posicio(0,0));
-	g=new Galleda(new Posicio(2,2),habitacio.llistaRajoles.length+5);
-	joc=new Joc(habitacio,j,g,50)
+	var pantalla=1;
+	var joc=ConstructorJoc.desdePantalla(PANTALLES[pantalla]);
 	joc.start();
 }
 
 
 function Joc(habitacio,jugador,galleda,temps) {
 	var self = this;
+	self.pantalla=0;
 	self.habitacio=habitacio;
 	self.jugador=jugador;
 	self.galleda=galleda;
@@ -67,6 +67,7 @@ function Joc(habitacio,jugador,galleda,temps) {
 
 		self.stage = new PIXI.Container(),
     	self.renderer = PIXI.autoDetectRenderer(self.habitacio.ample*MIDA_RAJOLA, self.habitacio.alt*MIDA_RAJOLA);
+    	self.renderer.backgroundColor = 0xFFFFFF;
 		document.body.appendChild(self.renderer.view);
 		
 		self.displayHabitacio(self.habitacio);

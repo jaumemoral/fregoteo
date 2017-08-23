@@ -184,39 +184,41 @@ function Jugador(habitacio,posicio) {
 	}
 }
 
-function ConstructorHabitacions() {
-	this.buida=function (ample,alt) {
+var ConstructorJoc={
+	desdePantalla:function (pantalla) {
+		var strings=pantalla.habitacio;
+		var ample=strings[0].length;
+		var alt=strings.length;
 		var h=new Habitacio(ample,alt);
-		for (i=0;i<h.alt;i++) {
-			var fila=[]
-			for (j=0;j<h.ample;j++) {
-				r=new Rajola(new Posicio(i,j));
-				fila.push(r)
+		var j=null;
+		var g=null;
+		var posicioGalleda=null;
+		for (var fila=0;fila<h.alt;fila++) {			
+			h.rajoles.push([]);
+			for (var columna=0;columna<h.ample;columna++) {
+				var p=new Posicio(fila,columna)
+				var lletra=strings[fila].charAt(columna);
+				var r=null;
+				if (lletra!='X') r=new Rajola(p);
+				if (lletra=='J') j=new Jugador(h,p);
+				if (lletra=='G') posicioGalleda=p;
+				h.rajoles[fila].push(r);
 			}
-			h.rajoles.push(fila)
 		}
 		h.init();
-		return h;
-	}
-
-	this.random=function (ample,alt) {
-		h=this.buida();
-		for (i=0;i<h.ample;i++) {
-			h.rajoles[i][i]==null;
-		}
-		h.init();
-		return h;
-	}
+		g=new Galleda(posicioGalleda,h.llistaRajoles.length+5);
+		return new Joc (h,j,g,pantalla.temps)
+	}	
 }
 
 function Habitacio(ample,alt) {
 	var self=this;
 	this.rajoles=[];
-	this.llistaRajoles=[];
 	this.ample=ample;
 	this.alt=alt;
 
 	this.init = function() {
+		this.llistaRajoles=[];
 		for (i=0;i<this.alt;i++) {
 			for (j=0;j<this.ample;j++) {
 				var r=this.rajoles[i][j]
@@ -241,7 +243,10 @@ function Habitacio(ample,alt) {
 		for (var i=0;i<this.alt;i++) {
 			for (var j=0;j<this.ample;j++) {
 				r=this.rajoles[i][j]
-				resultat+=r.toString()
+				if (r!=null)
+					resultat+=r.toString()
+				else 
+					resultat+="[  ]"
 			}
 			resultat+="\n"
 		}
