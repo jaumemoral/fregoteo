@@ -1,5 +1,6 @@
 var CAPACITAT_FREGONA=5;
 var VELOCITAT=2;
+var MIDA_RAJOLA=64;
 
 function Posicio(fila,columna) {
 	this.fila=fila;
@@ -7,15 +8,15 @@ function Posicio(fila,columna) {
 
 	this.igual=function(altraPosicio) {
 		if (altraPosicio==null) return false;
-		return (this.fila==altraPosicio.fila && this.columna==altraPosicio.columna)
+		return (this.fila==altraPosicio.fila && this.columna==altraPosicio.columna);
 	}
 
 	this.coordenadaX=function() {
-		return this.columna*64
+		return this.columna*MIDA_RAJOLA;
 	}
 
 	this.coordenadaY=function() {
-		return this.fila*64
+		return this.fila*MIDA_RAJOLA;
 	}
 
 	this.toString=function () {
@@ -97,14 +98,12 @@ function Jugador(habitacio,posicio) {
 
 	this.vesCap = function (direccio) {
 		this.direccio=direccio;
-		console.log(direccio)
 		this.setDesti();
 	}
 
 	this.vesCasella = function (posicio) {
 		if (!this.quiet()) return;
 		var direccio=this.posicio.calculaDireccioCapA(posicio)
-		console.log(direccio);
 		var p=this.posicio;
 		this.desti=p;
 		while (!p.igual(posicio)) {
@@ -115,7 +114,6 @@ function Jugador(habitacio,posicio) {
 	}
 
 	this.setDesti = function () {
-		console.log("set desti")
 		if (!this.quiet()) return;
 		var possibleDesti=this.desti.mou(this.direccio);
 		if (!this.habitacio.posicioValida(possibleDesti)) return
@@ -175,15 +173,39 @@ function Jugador(habitacio,posicio) {
 		if (this.desti.columna<this.posicio.columna) this.x-=VELOCITAT;
 
 		// Anem trepitjant al passar per cada casella
-		if ((this.x%64==0)&&(this.y%64==0)) {
-			console.log("trepitjo!")
-			this.mou(new Posicio(Math.floor(this.y/64),Math.floor(this.x/64)))
+		if ((this.x%MIDA_RAJOLA==0)&&(this.y%MIDA_RAJOLA==0)) {
+			this.mou(new Posicio(this.y/MIDA_RAJOLA,this.x/MIDA_RAJOLA))
 		}
 
 		// Fins arribar al nostre desti	
 		if ((this.x==this.desti.coordenadaX())&&(this.y==this.desti.coordenadaY())){
 			this.setDesti()
 		} 
+	}
+}
+
+function ConstructorHabitacions() {
+	this.buida=function (ample,alt) {
+		var h=new Habitacio(ample,alt);
+		for (i=0;i<h.alt;i++) {
+			var fila=[]
+			for (j=0;j<h.ample;j++) {
+				r=new Rajola(new Posicio(i,j));
+				fila.push(r)
+			}
+			h.rajoles.push(fila)
+		}
+		h.init();
+		return h;
+	}
+
+	this.random=function (ample,alt) {
+		h=this.buida();
+		for (i=0;i<h.ample;i++) {
+			h.rajoles[i][i]==null;
+		}
+		h.init();
+		return h;
 	}
 }
 
@@ -196,18 +218,13 @@ function Habitacio(ample,alt) {
 
 	this.init = function() {
 		for (i=0;i<this.alt;i++) {
-			var fila=[]
 			for (j=0;j<this.ample;j++) {
-				if ((i==1)&&(j==1)) break;
-				r=new Rajola(new Posicio(i,j));
-				fila.push(r)
-				this.llistaRajoles.push(r);
+				var r=this.rajoles[i][j]
+				if (r!=null) this.llistaRajoles.push(r);
 			}
-			this.rajoles.push(fila)
 		}
 		this.abans=new Date().getTime()
 	}
-	this.init();
 
 	this.getRajola = function(posicio) {
 		return this.rajoles[posicio.fila][posicio.columna];
@@ -248,7 +265,6 @@ function Habitacio(ample,alt) {
 	}
 
 	this.posicioValida=function(posicio) {
-		console.log("valid?"+posicio);
 		if (posicio.fila<0) return false;
 		if (posicio.columna<0) return false;
 		if (posicio.fila>=this.alt) return false;

@@ -17,10 +17,10 @@ PIXI.loader
 
 //This `setup` function will run when the image has loaded
 function setup() {
-	var habitacio=new Habitacio(4,4);
+	var habitacio=new ConstructorHabitacions().buida(5,5);
 	j=new Jugador(habitacio,new Posicio(0,0));
-	g=new Galleda(new Posicio(2,2),20);
-	joc=new Joc(habitacio,j,g,30)
+	g=new Galleda(new Posicio(2,2),habitacio.llistaRajoles.length+5);
+	joc=new Joc(habitacio,j,g,50)
 	joc.start();
 }
 
@@ -66,7 +66,7 @@ function Joc(habitacio,jugador,galleda,temps) {
 		space.press = function() {self.tractaAccio()};
 
 		self.stage = new PIXI.Container(),
-    	self.renderer = PIXI.autoDetectRenderer(256, 256);
+    	self.renderer = PIXI.autoDetectRenderer(self.habitacio.ample*MIDA_RAJOLA, self.habitacio.alt*MIDA_RAJOLA);
 		document.body.appendChild(self.renderer.view);
 		
 		self.displayHabitacio(self.habitacio);
