@@ -33,7 +33,7 @@ function init() {
 	document.getElementById("instruccions").className="amagat";
 	document.getElementById("marcador").className="visible";
 	PIXI.loader
-	  .add("brut.png").add("net.png").add("galleda.png").add("maid2.png")
+	  .add("net.png").add("galleda.png").add("maid2.png").add("shoe-prints.png").add ("bruticia.png")
   	  .load(Joc.start);
 }
 
@@ -83,6 +83,7 @@ function Pantalla(habitacio,jugador,galleda,temps) {
     	self.renderer.backgroundColor = 0xFFFFFF;
     	document.getElementById("stage").innerHTML="";
 		document.getElementById("stage").appendChild(self.renderer.view);
+		self.texturaNetaTrepitjada=self.combinaTextures(PIXI.loader.resources["net.png"].texture,PIXI.loader.resources["shoe-prints.png"].texture,0,0)
 		
 		self.displayHabitacio(self.habitacio);
 		self.displayJugador(self.jugador);
@@ -158,19 +159,41 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 			sprite.interactive=true;
 			sprite.rajola=rajola;
 			sprite.on('pointerdown',self.tractaClick);			
-			rajola.sprite=sprite;			
+			sprite.texture=self.combinaTextures(PIXI.loader.resources["net.png"].texture,PIXI.loader.resources["bruticia.png"].texture,rajola.posicio.fila,rajola.posicio.columna)
+			rajola.sprite=sprite;
+			rajola.texturaTrepitjada=self.combinaTextures(sprite.texture,PIXI.loader.resources["shoe-prints.png"].texture,0,0);			
 			console.log("sprite")
 			self.stage.addChild(sprite);
 		}
-	}		
+	}
+	
+	self.combinaTextures=function(a,b,x,y) {
+		var container=new PIXI.Container()
+		var texture = new PIXI.RenderTexture(
+    		new PIXI.BaseRenderTexture(MIDA_RAJOLA, MIDA_RAJOLA, PIXI.SCALE_MODES.LINEAR, 1)
+		);
+		var rajola = new PIXI.Sprite();
+		container.addChild(new PIXI.Sprite(a));
+		var texture2=b;
+		texture2.frame=new PIXI.Rectangle(y*MIDA_RAJOLA,x*MIDA_RAJOLA,MIDA_RAJOLA,MIDA_RAJOLA);
+		var bruticia=new PIXI.Sprite(texture2)
+		bruticia.alpha=0.4;
+		container.addChild(bruticia)
+		this.renderer.render(container, texture);
+		return texture;
+	}
 
 	self.updateHabitacio=function(habitacio) {
 		var colors=['F','E','C','B','A','9','8','7','6','5'];
 		var rajoles=habitacio.llistaRajoles
 		for (i in rajoles) {
-			var f="net.png";
-			if (rajoles[i].estaBruta()) f="brut.png";
-			rajoles[i].sprite.setTexture(PIXI.loader.resources[f].texture);
+			var texture=null;
+			if (!rajoles[i].estaBruta()) texture=PIXI.loader.resources["net.png"].texture;
+			if (rajoles[i].estaTrepitjada()) {
+				if (rajoles[i].estaBruta()) texture=rajoles[i].texturaTrepitjada;
+				else texture=self.texturaNetaTrepitjada
+			}
+			if (texture!=null) rajoles[i].sprite.setTexture(texture);
 			var a=colors[rajoles[i].molla];
 			var tint="0x"+a+a+a+a+"FF"
 			rajoles[i].sprite.tint=tint;

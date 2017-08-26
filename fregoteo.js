@@ -307,16 +307,18 @@ function Habitacio(ample,alt) {
 function Rajola(posicio) {
 	var self=this;
 	this.bruta=true;
+	this.trepitjada=false;
 	this.molla=0;
 	this.posicio=posicio;
 
 	this.frega=function() {
 		this.bruta=false;
+		this.trepitjada=false;
 		this.molla=9;
 	}
 
 	this.embruta=function() {
-		this.bruta=true;
+		this.trepitjada=true;
 	}	
 
 	this.trepitja=function(jugador) {
@@ -339,6 +341,10 @@ function Rajola(posicio) {
 
 	this.estaBruta=function()	{
 		return (this.bruta);
+	}
+
+	this.estaTrepitjada=function()	{
+		return (this.trepitjada);
 	}
 
 	this.toString = function() {
