@@ -323,14 +323,12 @@ function Rajola(posicio) {
 		this.bruta=false;
 		this.trepitjada=null;
 		this.molla=9;
-		console.log("ftrgo")
 	}
 
 	this.trepitja=function(jugador) {
 		if (jugador.tePeusMolls()||this.estaMolla()) {
 			this.estatAnterior=this.clone();
 			this.trepitjada=jugador.direccioArribada();
-			console.log("trepitjada:"+this.trepitjada)
 		} 		
 		if (this.estaMolla()) {
 			jugador.mullaPeus(this.molla)
@@ -339,7 +337,6 @@ function Rajola(posicio) {
 
 	this.secaUnaMica=function()	{
 		if (this.estaMolla()) {
-			this.estatAnterior=this.clone();
 			this.molla--;
 		}
 	}
@@ -360,14 +357,14 @@ function Rajola(posicio) {
 		return "["+(this.bruta?"X":".")+this.trepitjada+this.molla+"]"
 	}
 
-	this.equals = function (altre) {
+	this.estaIgualDeBruta = function (altre) {
 		if (altre==null) return false;
 		var igual=(this.bruta==altre.bruta) && (this.trepitjada==altre.trepitjada);
 		return igual;
 	}
 
 	this.haCanviat = function() {
-		var canviat= !this.equals(this.estatAnterior);
+		var canviat= !this.estaIgualDeBruta(this.estatAnterior);
 		this.estatAnterior=this.clone();
 		return canviat;
 	}

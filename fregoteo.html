@@ -200,17 +200,17 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		var colors=['F','E','C','B','A','9','8','7','6','5'];
 		var rajoles=habitacio.llistaRajoles
 		for (i in rajoles) {
-			if (!rajoles[i].haCanviat()) continue;
-			console.log("soc diferent!")
-			var texture=null;
-			if (!rajoles[i].estaBruta()) 
-				texture=PIXI.loader.resources["net.png"].texture;
-			if (rajoles[i].estaTrepitjada()) {
-				texture=self.combinaTextures(
+			if (rajoles[i].haCanviat()) {
+				var texture=null;
+				if (!rajoles[i].estaBruta()) 
+					texture=PIXI.loader.resources["net.png"].texture;
+				if (rajoles[i].estaTrepitjada()) {
+					texture=self.combinaTextures(
 						rajoles[i].sprite.texture,
 						self.petjades[rajoles[i].trepitjada],0,0);
+				}
+				if (texture!=null) rajoles[i].sprite.setTexture(texture);
 			}
-			if (texture!=null) rajoles[i].sprite.setTexture(texture);
 			var a=colors[rajoles[i].molla];
 			var tint="0x"+a+a+a+a+"FF"
 			rajoles[i].sprite.tint=tint;

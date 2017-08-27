@@ -55,13 +55,9 @@ describe("Provant fregoteo", function() {
   it("Una rajola es igual que una altra pero si canvia llavors ja no", function() {
     var rajola=new Rajola(new Posicio(1,1));
     rajola.estatAnterior=rajola.clone();
-    expect(rajola.equals(rajola.estatAnterior)).toBe(true);
-    console.log(rajola.toString())
-    console.log(rajola.estatAnterior.toString())
+    expect(rajola.estaIgualDeBruta(rajola.estatAnterior)).toBe(true);
     rajola.frega();
-    console.log(rajola.toString())
-    console.log(rajola.estatAnterior.toString())
-    expect(rajola.equals(rajola.estatAnterior)).toBe(false);
+    expect(rajola.estaIgualDeBruta(rajola.estatAnterior)).toBe(false);
   });
 
   it("Idem amb la funcio haCanviat", function() {
