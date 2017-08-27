@@ -82,6 +82,7 @@ function Jugador(habitacio,posicio) {
 	this.posicio=posicio;
 
 	this.desti=posicio;
+	this.origen=posicio;
 	this.x=this.posicio.coordenadaX();
 	this.y=this.posicio.coordenadaY();
 	this.peusMolls=0;
@@ -123,10 +124,15 @@ function Jugador(habitacio,posicio) {
 	}
 
 	this.mou = function (posicio) {
+		this.origen=this.posicio;
 		this.posicio=posicio;	
 		var rajola=habitacio.getRajola(this.posicio);
 		rajola.trepitja(this);
 		this.secaPeus();
+	}
+
+	this.direccioArribada = function() {
+		return this.origen.calculaDireccioCapA(this.posicio);
 	}
 
 	this.tePeusMolls = function () {
@@ -307,32 +313,35 @@ function Habitacio(ample,alt) {
 function Rajola(posicio) {
 	var self=this;
 	this.bruta=true;
-	this.trepitjada=false;
+	this.trepitjada=null;
 	this.molla=0;
 	this.posicio=posicio;
+	this.estatAnterior=null;
 
 	this.frega=function() {
+		this.estatAnterior=this.clone();
 		this.bruta=false;
-		this.trepitjada=false;
+		this.trepitjada=null;
 		this.molla=9;
+		console.log("ftrgo")
 	}
 
-	this.embruta=function() {
-		this.trepitjada=true;
-	}	
-
 	this.trepitja=function(jugador) {
-		if (jugador.tePeusMolls()) {
-			this.embruta();
+		if (jugador.tePeusMolls()||this.estaMolla()) {
+			this.estatAnterior=this.clone();
+			this.trepitjada=jugador.direccioArribada();
+			console.log("trepitjada:"+this.trepitjada)
 		} 		
 		if (this.estaMolla()) {
-			this.embruta();
 			jugador.mullaPeus(this.molla)
 		} 		
 	}
 
 	this.secaUnaMica=function()	{
-		if (this.estaMolla()) this.molla--;
+		if (this.estaMolla()) {
+			this.estatAnterior=this.clone();
+			this.molla--;
+		}
 	}
 
 	this.estaMolla=function()	{
@@ -344,10 +353,30 @@ function Rajola(posicio) {
 	}
 
 	this.estaTrepitjada=function()	{
-		return (this.trepitjada);
+		return (this.trepitjada!=null);
 	}
 
 	this.toString = function() {
-		return "["+(this.bruta?"X":".")+this.molla+"]"
+		return "["+(this.bruta?"X":".")+this.trepitjada+this.molla+"]"
+	}
+
+	this.equals = function (altre) {
+		if (altre==null) return false;
+		var igual=(this.bruta==altre.bruta) && (this.trepitjada==altre.trepitjada);
+		return igual;
+	}
+
+	this.haCanviat = function() {
+		var canviat= !this.equals(this.estatAnterior);
+		this.estatAnterior=this.clone();
+		return canviat;
+	}
+
+	this.clone = function() {
+		var r=new Rajola(this.posicio);
+		r.bruta=this.bruta;
+		r.molla=this.molla;
+		r.trepitjada=this.trepitjada;
+		return r;
 	}
 }

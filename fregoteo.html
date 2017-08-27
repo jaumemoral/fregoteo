@@ -45,6 +45,7 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 	self.galleda=galleda;
 	self.crono=new Crono(temps);
 	self.acabat=false;
+	self.cacheTextures={};
 
 	self.actualitzaMarcador=function () {
 		document.getElementById("fregona").innerHTML=self.jugador.aiguaFregona
@@ -85,6 +86,7 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		document.getElementById("stage").appendChild(self.renderer.view);
 		self.texturaNetaTrepitjada=self.combinaTextures(PIXI.loader.resources["net.png"].texture,PIXI.loader.resources["shoe-prints.png"].texture,0,0)
 		
+		self.initSprites();
 		self.displayHabitacio(self.habitacio);
 		self.displayJugador(self.jugador);
 		self.displayGalleda(self.galleda);
@@ -93,6 +95,15 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		self.noPassoPantalla=noPassoPantalla;
 		self.bucle();
 	}		
+
+	self.initSprites= function() {
+		var original=PIXI.loader.resources["shoe-prints.png"].texture
+		self.petjades={};
+		self.petjades[Direccio.AMUNT]=original
+		self.petjades[Direccio.AVALL]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 4)
+		self.petjades[Direccio.DRETA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 6)
+		self.petjades[Direccio.ESQUERRA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 2)
+	}
 
 	self.bucle= function() {
 		self.updateHabitacio(self.habitacio);
@@ -164,8 +175,7 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 				PIXI.loader.resources["bruticia.png"].texture,
 				rajola.posicio.fila,rajola.posicio.columna)
 			rajola.sprite=sprite;
-			rajola.sprite.texturaBrutaTrepitjada=self.combinaTextures(
-				sprite.texture,PIXI.loader.resources["shoe-prints.png"].texture,0,0);			
+			rajola.sprite.texturaBruta=sprite.texture;	
 			self.stage.addChild(sprite);
 		}
 	}
@@ -190,14 +200,15 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		var colors=['F','E','C','B','A','9','8','7','6','5'];
 		var rajoles=habitacio.llistaRajoles
 		for (i in rajoles) {
+			if (!rajoles[i].haCanviat()) continue;
+			console.log("soc diferent!")
 			var texture=null;
-			if (!rajoles[i].estaBruta()) texture=PIXI.loader.resources["net.png"].texture;
+			if (!rajoles[i].estaBruta()) 
+				texture=PIXI.loader.resources["net.png"].texture;
 			if (rajoles[i].estaTrepitjada()) {
-				if (rajoles[i].estaBruta()) {
-					texture=rajoles[i].sprite.texturaBrutaTrepitjada;
-				} else { 
-					texture=self.texturaNetaTrepitjada
-				}
+				texture=self.combinaTextures(
+						rajoles[i].sprite.texture,
+						self.petjades[rajoles[i].trepitjada],0,0);
 			}
 			if (texture!=null) rajoles[i].sprite.setTexture(texture);
 			var a=colors[rajoles[i].molla];

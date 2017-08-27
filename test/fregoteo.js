@@ -24,14 +24,14 @@ describe("Provant fregoteo", function() {
     expect(r.estaMolla()).toBe(true);
   });
 
-  it("Casella (0,0) bruta quan esta molla i trepitgem", function() {
+  it("Casella (0,0) trepiatjada quan esta molla i trepitgem", function() {
     jugador.mullaFregona(galleda)
     jugador.frega()
     jugador.mou(new Posicio(1,0));
     jugador.frega()
     jugador.mou(new Posicio(0,0));
 	var r=habitacio.getRajola(new Posicio(0,0))
-    expect(r.estaBruta()).toBe(true);
+    expect(r.estaTrepitjada()).toBe(true);
   });
 
   it("Casella (0,0) seca esperant un rato", function() {
@@ -52,6 +52,26 @@ describe("Provant fregoteo", function() {
     expect(r.estaMolla()).toBe(false);
   });
 
+  it("Una rajola es igual que una altra pero si canvia llavors ja no", function() {
+    var rajola=new Rajola(new Posicio(1,1));
+    rajola.estatAnterior=rajola.clone();
+    expect(rajola.equals(rajola.estatAnterior)).toBe(true);
+    console.log(rajola.toString())
+    console.log(rajola.estatAnterior.toString())
+    rajola.frega();
+    console.log(rajola.toString())
+    console.log(rajola.estatAnterior.toString())
+    expect(rajola.equals(rajola.estatAnterior)).toBe(false);
+  });
+
+  it("Idem amb la funcio haCanviat", function() {
+    var rajola=new Rajola(new Posicio(1,1));
+    expect(rajola.haCanviat()).toBe(true);
+    expect(rajola.haCanviat()).toBe(false);
+    rajola.frega();
+    expect(rajola.haCanviat()).toBe(true);
+    expect(rajola.haCanviat()).toBe(false);
+  });
 
 });
     
