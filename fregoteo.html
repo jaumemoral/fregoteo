@@ -33,7 +33,7 @@ function init() {
 	document.getElementById("instruccions").className="amagat";
 	document.getElementById("marcador").className="visible";
 	PIXI.loader
-	  .add("net.png").add("galleda.png").add("maid2.png").add("shoe-prints.png").add ("bruticia.png")
+	  .add("net.png").add("galleda.png").add("maid.png").add("shoe-prints.png").add ("bruticia.png")
   	  .load(Joc.start);
 }
 
@@ -116,7 +116,7 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 	}
 
     self.displayJugador=function() {			
-		self.jugador.sprite=new PIXI.Sprite(PIXI.loader.resources["maid2.png"].texture);		
+		self.jugador.sprite=new PIXI.Sprite(PIXI.loader.resources["maid.png"].texture);		
 		self.stage.addChild(self.jugador.sprite);				
 	}
 
@@ -159,10 +159,13 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 			sprite.interactive=true;
 			sprite.rajola=rajola;
 			sprite.on('pointerdown',self.tractaClick);			
-			sprite.texture=self.combinaTextures(PIXI.loader.resources["net.png"].texture,PIXI.loader.resources["bruticia.png"].texture,rajola.posicio.fila,rajola.posicio.columna)
+			sprite.texture=self.combinaTextures(
+				PIXI.loader.resources["net.png"].texture,
+				PIXI.loader.resources["bruticia.png"].texture,
+				rajola.posicio.fila,rajola.posicio.columna)
 			rajola.sprite=sprite;
-			rajola.texturaTrepitjada=self.combinaTextures(sprite.texture,PIXI.loader.resources["shoe-prints.png"].texture,0,0);			
-			console.log("sprite")
+			rajola.sprite.texturaBrutaTrepitjada=self.combinaTextures(
+				sprite.texture,PIXI.loader.resources["shoe-prints.png"].texture,0,0);			
 			self.stage.addChild(sprite);
 		}
 	}
@@ -177,7 +180,7 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		var texture2=b;
 		texture2.frame=new PIXI.Rectangle(y*MIDA_RAJOLA,x*MIDA_RAJOLA,MIDA_RAJOLA,MIDA_RAJOLA);
 		var bruticia=new PIXI.Sprite(texture2)
-		bruticia.alpha=0.4;
+		bruticia.alpha=0.3;
 		container.addChild(bruticia)
 		this.renderer.render(container, texture);
 		return texture;
@@ -190,8 +193,11 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 			var texture=null;
 			if (!rajoles[i].estaBruta()) texture=PIXI.loader.resources["net.png"].texture;
 			if (rajoles[i].estaTrepitjada()) {
-				if (rajoles[i].estaBruta()) texture=rajoles[i].texturaTrepitjada;
-				else texture=self.texturaNetaTrepitjada
+				if (rajoles[i].estaBruta()) {
+					texture=rajoles[i].sprite.texturaBrutaTrepitjada;
+				} else { 
+					texture=self.texturaNetaTrepitjada
+				}
 			}
 			if (texture!=null) rajoles[i].sprite.setTexture(texture);
 			var a=colors[rajoles[i].molla];
