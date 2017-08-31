@@ -33,7 +33,7 @@ function init() {
 	document.getElementById("instruccions").className="amagat";
 	document.getElementById("marcador").className="visible";
 	PIXI.loader
-	  .add("net.png").add("galleda.png").add("maid.png").add("shoe-prints.png").add ("bruticia.png")
+	  .add("net.png").add("galleda.png").add("maid.png").add("shoe-prints.png").add("bruticia.png").add("cat.png")
   	  .load(Joc.start);
 }
 
@@ -91,8 +91,12 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		self.displayJugador(self.jugador);
 		self.displayGalleda(self.galleda);
 
+		self.gat=new Gat(self.habitacio,self.jugador.posicio.clone());
+		self.displayGat();
+
 		self.passoPantalla=passoPantalla;
 		self.noPassoPantalla=noPassoPantalla;
+
 		self.bucle();
 	}		
 
@@ -107,12 +111,14 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 
 	self.bucle= function() {
 		self.updateHabitacio(self.habitacio);
-		self.updateJugador(self.jugador);
+		self.updatePersonatge(self.jugador);
+		self.updatePersonatge(self.gat);
 		self.updateGalleda(self.galleda);
 		self.renderer.render(self.stage);
 		self.habitacio.pas();
 		self.jugador.pas();
 		self.crono.pas();
+		self.gat.pas();
 		self.actualitzaMarcador()
 		self.acabatBe=(self.habitacio.estaSeca() && self.habitacio.rajolesBrutes()==0)
 		self.acabatMalament=(self.habitacio.rajolesBrutes()>0 && self.jugador.aiguaFregona==0 && self.galleda.aigua==0)
@@ -136,9 +142,14 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		self.stage.addChild(self.galleda.sprite);
 	}
 
-    self.updateJugador=function(jugador) {			
-		jugador.sprite.x=jugador.x
-		jugador.sprite.y=jugador.y
+    self.displayGat=function() {			
+    	self.gat.sprite=new PIXI.Sprite(PIXI.loader.resources["cat.png"].texture);
+		self.stage.addChild(self.gat.sprite);
+	}
+
+    self.updatePersonatge=function(personatge) {			
+		personatge.sprite.x=personatge.x
+		personatge.sprite.y=personatge.y
 	}
 
     self.updateGalleda=function(galleda) {	

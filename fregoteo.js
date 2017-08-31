@@ -5,42 +5,64 @@ var MIDA_RAJOLA=64;
 function Posicio(fila,columna) {
 	this.fila=fila;
 	this.columna=columna;
-
-	this.igual=function(altraPosicio) {
+}
+Posicio.prototype.igual=function(altraPosicio) {
 		if (altraPosicio==null) return false;
 		return (this.fila==altraPosicio.fila && this.columna==altraPosicio.columna);
 	}
 
-	this.coordenadaX=function() {
+Posicio.prototype.coordenadaX=function() {
 		return this.columna*MIDA_RAJOLA;
 	}
 
-	this.coordenadaY=function() {
+Posicio.prototype.coordenadaY=function() {
 		return this.fila*MIDA_RAJOLA;
 	}
 
-	this.toString=function () {
+Posicio.prototype.toString=function () {
 		return "("+this.fila+","+this.columna+")";
 	}
 
-	this.mou=function (direccio) {
+Posicio.prototype.mou=function (direccio) {
 		if (direccio==null) return this;
 		return new Posicio(this.fila+direccio[0],this.columna+direccio[1]);
 	}
 
-	this.calculaDireccioCapA=function(posicio) {
+Posicio.prototype.calculaDireccioCapA=function(posicio) {
 		if (this.fila>posicio.fila) return Direccio.AMUNT;
 		if (this.fila<posicio.fila) return Direccio.AVALL;
 		if (this.columna>posicio.columna) return Direccio.ESQUERRA;
 		if (this.columna<posicio.columna) return Direccio.DRETA;
 	}
-}
+
+Posicio.prototype.clone = function() {
+		var r=new Posicio(this.fila,this.columna);
+		return r;
+	}
+
 
 var Direccio={
 	'ESQUERRA':[0,-1],
 	'AMUNT':[-1,0],
 	'AVALL':[1,0],
-	'DRETA':[0,1]
+	'DRETA':[0,1],
+	oposada: function (origen) {
+		if (origen==Direccio.ESQUERRA) return Direccio.DRETA;
+		if (origen==Direccio.AMUNT) return Direccio.AVALL;
+		if (origen==Direccio.DRETA) return Direccio.ESQUERRA;
+		if (origen==Direccio.AVALL) return Direccio.AMUNT;
+	},
+	random: function (origen) {
+		var direccions=['ESQUERRA','AMUNT','AVALL','DRETA'];
+		var intents=0;
+		var r=Math.floor(Math.random()*4);
+		while (Direccio[direccions[r]]==Direccio.oposada(origen)) {
+			r=Math.floor(Math.random()*4);			
+			intents++;
+			if (intents>10) return Direccio.oposada(origen);
+		}
+		return Direccio[direccions[r]];
+	}
 }
 
 function Crono(temps) {
@@ -85,6 +107,7 @@ function Personatge(habitacio,posicio) {
 	this.x=this.posicio.coordenadaX();
 	this.y=this.posicio.coordenadaY();
 	this.direccio=null;	
+	this.peusMolls=0;	
 }
 
 Personatge.prototype.vesCap = function (direccio) {
@@ -125,6 +148,18 @@ Personatge.prototype.setDesti = function () {
 	this.direccio=null;
 }	
 
+Personatge.prototype.tePeusMolls = function () {
+		return this.peusMolls>0;
+	}
+
+Personatge.prototype.mullaPeus = function (aigua) {
+		this.peusMolls=aigua
+	}
+
+Personatge.prototype.secaPeus = function () {
+		if (this.tePeusMolls) this.peusMolls--;
+	}
+
 Personatge.prototype.estaSobre = function (cosa) {
 	return (this.posicio.igual(cosa.posicio));
 }
@@ -158,7 +193,6 @@ Personatge.prototype.pas=function() {
 
 function Jugador(habitacio,posicio) {
 	Personatge.call(this,habitacio,posicio);
-	this.peusMolls=0;
 	this.aiguaFregona=0;
 }
 
@@ -172,14 +206,6 @@ Jugador.prototype.frega = function() {
 			rajola.frega();
 			this.aiguaFregona--;
 		}
-	}
-
-Jugador.prototype.tePeusMolls = function () {
-		return this.peusMolls>0;
-	}
-
-Jugador.prototype.mullaPeus = function (aigua) {
-		this.peusMolls=aigua
 	}
 
 Jugador.prototype.mullaFregona = function (galleda) {
@@ -196,10 +222,28 @@ Jugador.prototype.deixaGalleda = function (galleda) {
 		galleda.deixa()
 	}
 
-Jugador.prototype.secaPeus = function () {
-		if (this.tePeusMolls) this.peusMolls--;
-	}
 
+// ----
+
+function Gat(habitacio,posicio) {
+	Personatge.call(this,habitacio,posicio);
+	this.setDesti();
+}
+
+Gat.prototype=Object.create(Personatge.prototype);
+Gat.prototype.constructor=Gat;
+
+Gat.prototype.setDesti = function () {
+	if (!this.quiet()) return;
+	var possibleDesti=new Posicio(-1,-1);
+	while (!this.habitacio.posicioValida(possibleDesti)) {
+		var direccio=Direccio.random(this.direccioArribada());
+		possibleDesti=this.desti.mou(direccio);
+	}
+	this.desti=possibleDesti;
+}	
+
+// ----
 
 var ConstructorPantalles={
 	desdePantalla:function (pantalla) {
@@ -335,13 +379,13 @@ Rajola.prototype.frega=function() {
 		this.molla=9;
 	}
 
-Rajola.prototype.trepitja=function(jugador) {
-		if (jugador.tePeusMolls()||this.estaMolla()) {
+Rajola.prototype.trepitja=function(personatge) {
+		if (personatge.tePeusMolls()||this.estaMolla()) {
 			this.estatAnterior=this.clone();
-			this.trepitjada=jugador.direccioArribada();
+			this.trepitjada=personatge.direccioArribada();
 		} 		
 		if (this.estaMolla()) {
-			jugador.mullaPeus(this.molla)
+			personatge.mullaPeus(this.molla)
 		} 		
 	}
 
