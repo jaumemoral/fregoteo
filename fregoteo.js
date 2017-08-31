@@ -382,7 +382,7 @@ Rajola.prototype.frega=function() {
 Rajola.prototype.trepitja=function(personatge) {
 		if (personatge.tePeusMolls()||this.estaMolla()) {
 			this.estatAnterior=this.clone();
-			this.trepitjada=personatge.direccioArribada();
+			this.trepitjada={personatge:personatge,direccio:personatge.direccioArribada()};
 		} 		
 		if (this.estaMolla()) {
 			personatge.mullaPeus(this.molla)

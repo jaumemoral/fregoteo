@@ -33,7 +33,7 @@ function init() {
 	document.getElementById("instruccions").className="amagat";
 	document.getElementById("marcador").className="visible";
 	PIXI.loader
-	  .add("net.png").add("galleda.png").add("maid.png").add("shoe-prints.png").add("bruticia.png").add("cat.png")
+	  .add("net.png").add("galleda.png").add("maid.png").add("petjades.png").add("petjades_gat.png").add("bruticia.png").add("cat.png")
   	  .load(Joc.start);
 }
 
@@ -84,9 +84,10 @@ function Pantalla(habitacio,jugador,galleda,temps) {
     	self.renderer.backgroundColor = 0xFFFFFF;
     	document.getElementById("stage").innerHTML="";
 		document.getElementById("stage").appendChild(self.renderer.view);
-		self.texturaNetaTrepitjada=self.combinaTextures(PIXI.loader.resources["net.png"].texture,PIXI.loader.resources["shoe-prints.png"].texture,0,0)
+		self.texturaNetaTrepitjada=self.combinaTextures(PIXI.loader.resources["net.png"].texture,PIXI.loader.resources["petjades.png"].texture,0,0)
 		
-		self.initSprites();
+		self.initSprites("petjades");
+		self.initSprites("petjades_gat");
 		self.displayHabitacio(self.habitacio);
 		self.displayJugador(self.jugador);
 		self.displayGalleda(self.galleda);
@@ -100,13 +101,13 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		self.bucle();
 	}		
 
-	self.initSprites= function() {
-		var original=PIXI.loader.resources["shoe-prints.png"].texture
-		self.petjades={};
-		self.petjades[Direccio.AMUNT]=original
-		self.petjades[Direccio.AVALL]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 4)
-		self.petjades[Direccio.DRETA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 6)
-		self.petjades[Direccio.ESQUERRA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 2)
+	self.initSprites= function(fitxer) {
+		var original=PIXI.loader.resources[fitxer+".png"].texture
+		self[fitxer]={};
+		self[fitxer][Direccio.AMUNT]=original
+		self[fitxer][Direccio.AVALL]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 4)
+		self[fitxer][Direccio.DRETA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 6)
+		self[fitxer][Direccio.ESQUERRA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 2)
 	}
 
 	self.bucle= function() {
@@ -216,9 +217,11 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 				if (!rajoles[i].estaBruta()) 
 					texture=PIXI.loader.resources["net.png"].texture;
 				if (rajoles[i].estaTrepitjada()) {
+					var textures="petjades";
+					if (rajoles[i].trepitjada.personatge==self.gat) textures="petjades_gat";
 					texture=self.combinaTextures(
 						rajoles[i].sprite.texture,
-						self.petjades[rajoles[i].trepitjada],0,0);
+						self[textures][rajoles[i].trepitjada.direccio],0,0);
 				}
 				if (texture!=null) rajoles[i].sprite.setTexture(texture);
 			}
