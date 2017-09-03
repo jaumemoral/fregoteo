@@ -42,6 +42,7 @@ Posicio.prototype.clone = function() {
 
 
 var Direccio={
+	index:['AMUNT','ESQUERRA','AVALL','DRETA'],
 	'ESQUERRA':[0,-1],
 	'AMUNT':[-1,0],
 	'AVALL':[1,0],
@@ -52,17 +53,17 @@ var Direccio={
 		if (origen==Direccio.DRETA) return Direccio.ESQUERRA;
 		if (origen==Direccio.AVALL) return Direccio.AMUNT;
 	},
-	random: function (origen) {
-		var direccions=['ESQUERRA','AMUNT','AVALL','DRETA'];
-		var intents=0;
+	random: function () {		
 		var r=Math.floor(Math.random()*4);
-		while (Direccio[direccions[r]]==Direccio.oposada(origen)) {
-			r=Math.floor(Math.random()*4);			
-			intents++;
-			if (intents>10) return Direccio.oposada(origen);
+		return Direccio[Direccio.index[r]];
+	},
+	seguent: function (origen) {		
+		for (var i=0;i<4;i++) {
+			if (origen==Direccio[Direccio.index[i]]) return Direccio[Direccio.index[(i+1)%4]];
 		}
-		return Direccio[direccions[r]];
+		return null;
 	}
+
 }
 
 function Crono(temps) {
@@ -235,12 +236,17 @@ Gat.prototype.constructor=Gat;
 
 Gat.prototype.setDesti = function () {
 	if (!this.quiet()) return;
-	var possibleDesti=new Posicio(-1,-1);
-	while (!this.habitacio.posicioValida(possibleDesti)) {
-		var direccio=Direccio.random(this.direccioArribada());
+	var siNoHiHaMesRemei = Direccio.oposada(this.direccioArribada());
+	var direccio=Direccio.random();
+	for (var i=0;i<4;i++) {		
+		direccio=Direccio.seguent(direccio);
 		possibleDesti=this.desti.mou(direccio);
+		if (this.habitacio.posicioValida(possibleDesti) && direccio!=siNoHiHaMesRemei) {
+			this.desti=possibleDesti;
+			return
+		}
 	}
-	this.desti=possibleDesti;
+	this.desti=this.desti.mou(siNoHiHaMesRemei);
 }	
 
 // ----
