@@ -2,44 +2,48 @@ var CAPACITAT_FREGONA=5;
 var VELOCITAT=2;
 var MIDA_RAJOLA=64;
 
+// ----------------------------------------------------
+
 function Posicio(fila,columna) {
 	this.fila=fila;
 	this.columna=columna;
 }
+
 Posicio.prototype.igual=function(altraPosicio) {
-		if (altraPosicio==null) return false;
-		return (this.fila==altraPosicio.fila && this.columna==altraPosicio.columna);
-	}
+	if (altraPosicio==null) return false;
+	return (this.fila==altraPosicio.fila && this.columna==altraPosicio.columna);
+}
 
 Posicio.prototype.coordenadaX=function() {
-		return this.columna*MIDA_RAJOLA;
-	}
+	return this.columna*MIDA_RAJOLA;
+}
 
 Posicio.prototype.coordenadaY=function() {
-		return this.fila*MIDA_RAJOLA;
-	}
+	return this.fila*MIDA_RAJOLA;
+}
 
 Posicio.prototype.toString=function () {
-		return "("+this.fila+","+this.columna+")";
-	}
+	return "("+this.fila+","+this.columna+")";
+}
 
 Posicio.prototype.mou=function (direccio) {
-		if (direccio==null) return this;
-		return new Posicio(this.fila+direccio[0],this.columna+direccio[1]);
-	}
+	if (direccio==null) return this;
+	return new Posicio(this.fila+direccio[0],this.columna+direccio[1]);
+}
 
 Posicio.prototype.calculaDireccioCapA=function(posicio) {
-		if (this.fila>posicio.fila) return Direccio.AMUNT;
-		if (this.fila<posicio.fila) return Direccio.AVALL;
-		if (this.columna>posicio.columna) return Direccio.ESQUERRA;
-		if (this.columna<posicio.columna) return Direccio.DRETA;
-	}
+	if (this.fila>posicio.fila) return Direccio.AMUNT;
+	if (this.fila<posicio.fila) return Direccio.AVALL;
+	if (this.columna>posicio.columna) return Direccio.ESQUERRA;
+	if (this.columna<posicio.columna) return Direccio.DRETA;
+}
 
 Posicio.prototype.clone = function() {
-		var r=new Posicio(this.fila,this.columna);
-		return r;
-	}
+	var r=new Posicio(this.fila,this.columna);
+	return r;
+}
 
+// ----------------------------------------------------
 
 var Direccio={
 	index:['AMUNT','ESQUERRA','AVALL','DRETA'],
@@ -66,6 +70,8 @@ var Direccio={
 
 }
 
+// ----------------------------------------------------
+
 function Crono(temps) {
 	this.temps=temps
 	this.abans=new Date().getTime()
@@ -79,6 +85,8 @@ function Crono(temps) {
 	}
 
 }
+
+// ----------------------------------------------------
 		
 function Galleda(posicio,aigua) {
 	this.posicio=posicio;
@@ -99,6 +107,7 @@ function Galleda(posicio,aigua) {
 	}
 }
 
+// ----------------------------------------------------
 
 function Personatge(habitacio,posicio) {
 	this.habitacio=habitacio;
@@ -150,16 +159,16 @@ Personatge.prototype.setDesti = function () {
 }	
 
 Personatge.prototype.tePeusMolls = function () {
-		return this.peusMolls>0;
-	}
+	return this.peusMolls>0;
+}
 
 Personatge.prototype.mullaPeus = function (aigua) {
-		this.peusMolls=aigua
-	}
+	this.peusMolls=aigua
+}
 
 Personatge.prototype.secaPeus = function () {
-		if (this.tePeusMolls) this.peusMolls--;
-	}
+	if (this.tePeusMolls) this.peusMolls--;
+}
 
 Personatge.prototype.estaSobre = function (cosa) {
 	return (this.posicio.igual(cosa.posicio));
@@ -189,8 +198,7 @@ Personatge.prototype.pas=function() {
 	} 
 }
 
-
-
+// ----------------------------------------------------
 
 function Jugador(habitacio,posicio) {
 	Personatge.call(this,habitacio,posicio);
@@ -202,29 +210,28 @@ Jugador.prototype=Object.create(Personatge.prototype);
 Jugador.prototype.constructor=Jugador;
 
 Jugador.prototype.frega = function() {
-		if (this.aiguaFregona>0) {
-			rajola=this.habitacio.getRajola(this.posicio);
-			rajola.frega();
-			this.aiguaFregona--;
-		}
+	if (this.aiguaFregona>0) {
+		rajola=this.habitacio.getRajola(this.posicio);
+		rajola.frega();
+		this.aiguaFregona--;
 	}
+}
 
 Jugador.prototype.mullaFregona = function (galleda) {
-		var quantitatAigua=galleda.aigua>CAPACITAT_FREGONA?CAPACITAT_FREGONA:galleda.aigua;
-		this.aiguaFregona=quantitatAigua;
-		galleda.aigua-=quantitatAigua;
-	}
+	var quantitatAigua=galleda.aigua>CAPACITAT_FREGONA?CAPACITAT_FREGONA:galleda.aigua;
+	this.aiguaFregona=quantitatAigua;
+	galleda.aigua-=quantitatAigua;
+}
 
 Jugador.prototype.agafaGalleda = function (galleda) {
-		galleda.agafa(this)
-	}
+	galleda.agafa(this)
+}
 
 Jugador.prototype.deixaGalleda = function (galleda) {
-		galleda.deixa()
-	}
+	galleda.deixa()
+}
 
-
-// ----
+// ----------------------------------------------------
 
 function Gat(habitacio,posicio) {
 	Personatge.call(this,habitacio,posicio);
@@ -249,7 +256,7 @@ Gat.prototype.setDesti = function () {
 	this.desti=this.desti.mou(siNoHiHaMesRemei);
 }	
 
-// ----
+// ----------------------------------------------------
 
 var ConstructorPantalles={
 	desdePantalla:function (pantalla) {
@@ -274,12 +281,16 @@ var ConstructorPantalles={
 		}
 		h.init();
 		g=new Galleda(posicioGalleda,h.llistaRajoles.length+5);
-		return new Pantalla(h,j,g,pantalla.temps)
+		var gat=null;
+		if (pantalla.gat>0) gat=new Gat(h,j.posicio.clone());
+		return new Pantalla(h,j,g,gat,pantalla.temps)
 	},
 	carrega:function(npantalla) {
 		return ConstructorPantalles.desdePantalla(PANTALLES[npantalla]);
 	}
 }
+
+// ----------------------------------------------------
 
 function Habitacio(ample,alt) {
 	this.rajoles=[];
@@ -370,69 +381,80 @@ function Habitacio(ample,alt) {
 	}
 }
 
+// ----------------------------------------------------
+
 function Rajola(posicio) {
 	this.bruta=true;
 	this.trepitjada=null;
 	this.molla=0;
 	this.posicio=posicio;
 	this.estatAnterior=null;
+	this.abans=new Date().getTime();
 }
 
 Rajola.prototype.frega=function() {
-		this.estatAnterior=this.clone();
-		this.bruta=false;
-		this.trepitjada=null;
-		this.molla=9;
-	}
+	this.estatAnterior=this.clone();
+	this.bruta=false;
+	this.trepitjada=null;
+	this.molla=9;
+}
 
 Rajola.prototype.trepitja=function(personatge) {
-		if (personatge.tePeusMolls()||this.estaMolla()) {
-			this.estatAnterior=this.clone();
-			this.trepitjada={personatge:personatge,direccio:personatge.direccioArribada()};
-		} 		
-		if (this.estaMolla()) {
-			personatge.mullaPeus(this.molla)
-		} 		
-	}
+	if (personatge.tePeusMolls()||this.estaMolla()) {
+		this.estatAnterior=this.clone();
+		this.trepitjada={personatge:personatge,direccio:personatge.direccioArribada()};
+	} 		
+	if (this.estaMolla()) {
+		personatge.mullaPeus(this.molla)
+	} 		
+}
 
 Rajola.prototype.secaUnaMica=function()	{
-		if (this.estaMolla()) {
-			this.molla--;
-		}
+	if (this.estaMolla()) {
+		this.molla--;
 	}
+}
 
 Rajola.prototype.estaMolla=function()	{
-		return (this.molla>0);
-	}
+	return (this.molla>0);
+}
 
 Rajola.prototype.estaBruta=function()	{
-		return (this.bruta);
-	}
+	return (this.bruta);
+}
 
 Rajola.prototype.estaTrepitjada=function()	{
-		return (this.trepitjada!=null);
-	}
+	return (this.trepitjada!=null);
+}
 
 Rajola.prototype.toString = function() {
-		return "["+(this.bruta?"X":".")+this.trepitjada+this.molla+"]"
-	}
+	return "["+(this.bruta?"X":".")+this.trepitjada+this.molla+"]"
+}
 
 Rajola.prototype.estaIgualDeBruta = function (altra) {
-		if (altra==null) return false;
-		var igual=(this.bruta==altra.bruta) && (this.trepitjada==altra.trepitjada);
-		return igual;
-	}
+	if (altra==null) return false;
+	var igual=(this.bruta==altra.bruta) && (this.trepitjada==altra.trepitjada);
+	return igual;
+}
 
 Rajola.prototype.haCanviat = function() {
-		var canviat= !this.estaIgualDeBruta(this.estatAnterior);
-		this.estatAnterior=this.clone();
-		return canviat;
-	}
+	var canviat= !this.estaIgualDeBruta(this.estatAnterior);
+	this.estatAnterior=this.clone();
+	return canviat;
+}
 
 Rajola.prototype.clone = function() {
-		var r=new Rajola(this.posicio);
-		r.bruta=this.bruta;
-		r.molla=this.molla;
-		r.trepitjada=this.trepitjada;
-		return r;
+	var r=new Rajola(this.posicio);
+	r.bruta=this.bruta;
+	r.molla=this.molla;
+	r.trepitjada=this.trepitjada;
+	return r;
+}
+
+Rajola.prototype.pas = function() {
+	var ara=new Date().getTime();
+	if (ara>this.abans+1000) {
+		this.abans=ara
+		this.secaUnaMica();
 	}
+}

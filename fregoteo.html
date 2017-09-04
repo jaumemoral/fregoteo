@@ -38,16 +38,18 @@ function init() {
 }
 
 
-function Pantalla(habitacio,jugador,galleda,temps) {
+function Pantalla(habitacio,jugador,galleda,gat,temps) {
 	var self = this;
 	self.habitacio=habitacio;
 	self.jugador=jugador;
 	self.galleda=galleda;
+	self.gat=gat;
 	self.crono=new Crono(temps);
 	self.acabat=false;
-	self.cacheTextures={};
+	self.textures={};
 
 	self.actualitzaMarcador=function () {
+		self.crono.pas();
 		document.getElementById("fregona").innerHTML=self.jugador.aiguaFregona
 		document.getElementById("galleda").innerHTML=self.galleda.aigua
 		document.getElementById("brutes").innerHTML=self.habitacio.rajolesBrutes()
@@ -84,7 +86,7 @@ function Pantalla(habitacio,jugador,galleda,temps) {
     	self.renderer.backgroundColor = 0xFFFFFF;
     	document.getElementById("stage").innerHTML="";
 		document.getElementById("stage").appendChild(self.renderer.view);
-		self.texturaNetaTrepitjada=self.combinaTextures(PIXI.loader.resources["net.png"].texture,PIXI.loader.resources["petjades.png"].texture,0,0)
+		self.texturaNetaTrepitjada=combinaTextures(PIXI.loader.resources["net.png"].texture,PIXI.loader.resources["petjades.png"].texture,0,0,self.renderer)
 		
 		self.initSprites("petjades");
 		self.initSprites("petjades_gat");
@@ -92,8 +94,7 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		self.displayJugador(self.jugador);
 		self.displayGalleda(self.galleda);
 
-		self.gat=new Gat(self.habitacio,self.jugador.posicio.clone());
-		self.displayGat();
+		if (self.gat!=null) self.displayGat();
 
 		self.passoPantalla=passoPantalla;
 		self.noPassoPantalla=noPassoPantalla;
@@ -103,24 +104,17 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 
 	self.initSprites= function(fitxer) {
 		var original=PIXI.loader.resources[fitxer+".png"].texture
-		self[fitxer]={};
-		self[fitxer][Direccio.AMUNT]=original
-		self[fitxer][Direccio.AVALL]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 4)
-		self[fitxer][Direccio.DRETA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 6)
-		self[fitxer][Direccio.ESQUERRA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 2)
+		self.textures[fitxer]={};
+		self.textures[fitxer][Direccio.AMUNT]=original
+		self.textures[fitxer][Direccio.AVALL]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 4)
+		self.textures[fitxer][Direccio.DRETA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 6)
+		self.textures[fitxer][Direccio.ESQUERRA]=new PIXI.Texture(original.baseTexture, original.frame, original.crop, original.trim, 2)
 	}
 
 	self.bucle= function() {
-		self.updateHabitacio(self.habitacio);
-		self.updatePersonatge(self.jugador);
-		self.updatePersonatge(self.gat);
-		self.updateGalleda(self.galleda);
+		for (var i in self.stage.children) self.stage.children[i].update();
+		self.actualitzaMarcador()			
 		self.renderer.render(self.stage);
-		self.habitacio.pas();
-		self.jugador.pas();
-		self.crono.pas();
-		self.gat.pas();
-		self.actualitzaMarcador()
 		self.acabatBe=(self.habitacio.estaSeca() && self.habitacio.rajolesBrutes()==0)
 		self.acabatMalament=(self.habitacio.rajolesBrutes()>0 && self.jugador.aiguaFregona==0 && self.galleda.aigua==0)
 		self.acabatSenseTemps=(self.crono.temps==0)
@@ -134,42 +128,24 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 	}
 
     self.displayJugador=function() {			
-		self.jugador.sprite=new PIXI.Sprite(PIXI.loader.resources["maid.png"].texture);		
-		self.stage.addChild(self.jugador.sprite);				
+		var sprite=new PIXI.Sprite(PIXI.loader.resources["maid.png"].texture);
+		sprite.objecte=self.jugador;
+		sprite.update=function() {updatePersonatge(this)};
+		self.stage.addChild(sprite);
 	}
 
     self.displayGalleda=function() {			
-    	self.galleda.sprite=new PIXI.Sprite(PIXI.loader.resources["galleda.png"].texture);
-		self.stage.addChild(self.galleda.sprite);
+    	var sprite=new PIXI.Sprite(PIXI.loader.resources["galleda.png"].texture);
+    	sprite.objecte=self.galleda
+    	sprite.update=function() {updateGalleda(this)};
+		self.stage.addChild(sprite);
 	}
 
     self.displayGat=function() {			
-    	self.gat.sprite=new PIXI.Sprite(PIXI.loader.resources["cat.png"].texture);
-		self.stage.addChild(self.gat.sprite);
-	}
-
-    self.updatePersonatge=function(personatge) {			
-		personatge.sprite.x=personatge.x
-		personatge.sprite.y=personatge.y
-	}
-
-    self.updateGalleda=function(galleda) {	
-    	if (galleda.estaAgafada()) {
-			galleda.sprite.x=galleda.agafadaPer.x;
-			galleda.sprite.y=galleda.agafadaPer.y-10;
-		} else {
-			galleda.sprite.x=galleda.posicio.coordenadaX();
-			galleda.sprite.y=galleda.posicio.coordenadaY();
-		}
-	}
-
-	self.tractaClick=function(event) {
-		var rajola=event.target.rajola;
-		if (self.jugador.estaSobre(rajola)) {
-			self.tractaAccio();
-		} else {
-			self.jugador.vesCasella(rajola.posicio);
-		}
+    	var sprite=new PIXI.Sprite(PIXI.loader.resources["cat.png"].texture);
+    	sprite.objecte=self.gat;
+    	sprite.update=function() {updatePersonatge(this)};
+		self.stage.addChild(sprite);
 	}
 
 	self.displayHabitacio=function(habitacio) {
@@ -182,17 +158,29 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 			sprite.interactive=true;
 			sprite.rajola=rajola;
 			sprite.on('pointerdown',self.tractaClick);			
-			sprite.texture=self.combinaTextures(
+			sprite.texture=combinaTextures(
 				PIXI.loader.resources["net.png"].texture,
 				PIXI.loader.resources["bruticia.png"].texture,
-				rajola.posicio.fila,rajola.posicio.columna)
-			rajola.sprite=sprite;
-			rajola.sprite.texturaBruta=sprite.texture;	
+				rajola.posicio.fila,rajola.posicio.columna,self.renderer)
+			sprite.objecte=rajola;
+			sprite.update=function() {updateRajola(this,self.textures,self.renderer)}
 			self.stage.addChild(sprite);
+		}
+	}	
+
+	self.tractaClick=function(event) {
+		var rajola=event.target.rajola;
+		if (self.jugador.estaSobre(rajola)) {
+			self.tractaAccio();
+		} else {
+			self.jugador.vesCasella(rajola.posicio);
 		}
 	}
 	
-	self.combinaTextures=function(a,b,x,y) {
+}
+
+
+	function combinaTextures(a,b,x,y,renderer) {
 		var container=new PIXI.Container()
 		var texture = new PIXI.RenderTexture(
     		new PIXI.BaseRenderTexture(MIDA_RAJOLA, MIDA_RAJOLA, PIXI.SCALE_MODES.LINEAR, 1)
@@ -204,35 +192,52 @@ function Pantalla(habitacio,jugador,galleda,temps) {
 		var bruticia=new PIXI.Sprite(texture2)
 		bruticia.alpha=0.3;
 		container.addChild(bruticia)
-		this.renderer.render(container, texture);
+		renderer.render(container, texture);
 		return texture;
 	}
 
-	self.updateHabitacio=function(habitacio) {
-		var colors=['F','E','C','B','A','9','8','7','6','5'];
-		var rajoles=habitacio.llistaRajoles
-		for (i in rajoles) {
-			if (rajoles[i].haCanviat()) {
-				var texture=null;
-				if (!rajoles[i].estaBruta()) 
-					texture=PIXI.loader.resources["net.png"].texture;
-				if (rajoles[i].estaTrepitjada()) {
-					var textures="petjades";
-					if (rajoles[i].trepitjada.personatge==self.gat) textures="petjades_gat";
-					texture=self.combinaTextures(
-						rajoles[i].sprite.texture,
-						self[textures][rajoles[i].trepitjada.direccio],0,0);
-				}
-				if (texture!=null) rajoles[i].sprite.setTexture(texture);
-			}
-			var a=colors[rajoles[i].molla];
-			var tint="0x"+a+a+a+a+"FF"
-			rajoles[i].sprite.tint=tint;
+
+    function updatePersonatge(sprite) {
+    	var personatge=sprite.objecte;
+    	personatge.pas();
+		sprite.x=personatge.x
+		sprite.y=personatge.y
+	}
+
+    function updateGalleda(sprite) {
+    	var galleda=sprite.objecte;
+    	if (galleda.estaAgafada()) {
+			sprite.x=galleda.agafadaPer.x;
+			sprite.y=galleda.agafadaPer.y-10;
+		} else {
+			sprite.x=galleda.posicio.coordenadaX();
+			sprite.y=galleda.posicio.coordenadaY();
 		}
+	}
+
+	function updateRajola(sprite,textures,renderer) {
+		var rajola=sprite.rajola;
+		rajola.pas();
+		var colors=['F','E','C','B','A','9','8','7','6','5'];
+		if (rajola.haCanviat()) {
+			var texture=null;
+			if (!rajola.estaBruta()) 
+				texture=PIXI.loader.resources["net.png"].texture;
+			if (rajola.estaTrepitjada()) {
+				var textura="petjades";
+				if (rajola.trepitjada.personatge==self.gat) textura="petjades_gat";
+				texture=combinaTextures(
+					sprite.texture,
+					textures[textura][rajola.trepitjada.direccio],0,0,renderer);
+			}
+			if (texture!=null) sprite.setTexture(texture);
+		}
+		var a=colors[rajola.molla];
+		var tint="0x"+a+a+a+a+"FF"
+		sprite.tint=tint;
 	}		
 
 
-}
 
 </script>
 <style>
